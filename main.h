@@ -14,14 +14,10 @@
 
 void closeFiles(FILE *fp[], int f);
 
-bool getMSA(FILE *fp, msa_t *msa);
-
-int getVariants(FILE *fp, variant_t** vars, msa_t *msa, bool canBeEmpty, char* file_name);
-
 int runTests(){
 	aaProp_t *props = granthamInit();
 
-	float *coeff = (float*) malloc(4*sizeof(float));
+	float *coeff = (float*) malloc(5*sizeof(float));
 	granthamCoefficients(coeff);
 
 	//from Grantham (1974)
@@ -33,7 +29,7 @@ int runTests(){
 	for(r=0; r<19; r++){
 		for(c=r; c<19; c++){
 			aa_t acids[] = {cols[c], rows[r]};
-			float g = gv(props, &(acids[0]), 2, coeff);
+			float g = 50.723 * gv(props, &(acids[0]), 2, coeff);
 			if(floor(g)!=known[i] && ceil(g)!=known[i]){
 				fprintf(stderr, "r: %i (%i)	c: %i (%i)	known: %i	calc: %f\n", r, rows[r], c, cols[c], known[i], g);
 				err++;
