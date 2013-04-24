@@ -32,7 +32,7 @@ typedef struct {
 	unsigned int pos;
 	aa_t wt;
 	aa_t variant;
-	aa_t *msa[];
+	aa_t *msa;
 } variant_t;
 
 typedef struct {

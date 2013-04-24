@@ -16,9 +16,9 @@ void closeFiles(FILE *fp[], int f);
 
 bool getMSA(FILE *fp, msa_t *msa);
 
-int runTests(){
-	int error = 0;
+int getVariants(FILE *fp, variant_t** vars, msa_t *msa, bool canBeEmpty, char* file_name);
 
+int runTests(){
 	aaProp_t *props = granthamInit();
 
 	float *coeff = (float*) malloc(4*sizeof(float));
@@ -45,5 +45,5 @@ int runTests(){
 
 	free(props);
 	free(coeff);
-	return error;
+	return err;
 }
