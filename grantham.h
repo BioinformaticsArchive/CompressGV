@@ -318,3 +318,24 @@ float granthamMetric(variant_t *var, aaProp_t *properties, float *coeff, msa_t *
 	aa_t snp[2] = {var->wt, var->variant};
 	return gv(properties, &(snp[0]), 2, coeff) * pow(coeff[k], -gv(properties, msa->acids, msa->no_of_species, coeff));
 }
+
+float granthamCluster(variant_t *variants[], int nVariants[], aaProp_t *properties, float *coeff, msa_t *msa){
+	float mean[2] = {0., 0.};
+	float sd2[2] = {0., 0.};
+	float metric, delta;
+
+	int i, j;
+	for(i=0; i<2; i++){
+		for(j=0; j<nVariants[i]; j++){
+			metric = granthamMetric(variants[i] + j, properties, coeff, msa);
+
+			//See http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+			delta = metric - mean[i];
+			mean[i] += delta / (j+1);
+			sd2[i] += delta * (metric-mean[i]) / (nVariants[i]-1);
+		}
+		fprintf(stderr, "\n");
+	}
+
+	return (mean[0] - mean[1])/(sqrt(sd2[0]) + sqrt(sd2[1]));
+}
