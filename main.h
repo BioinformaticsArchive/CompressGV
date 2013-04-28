@@ -12,9 +12,16 @@
 
 #endif /* MAIN_H_ */
 
+typedef struct {
+	unsigned int tp, tn, fp, fn, degreesOfFreedom;
+	double coefficient, chiSquare;
+} matthews_t;
+
 void closeFiles(FILE *fp[], int f);
 
 double* optimiseCoefficients();
+
+matthews_t* assessModel();
 
 int runTests(){
 	double *coeff = (double*) malloc(4*sizeof(double));

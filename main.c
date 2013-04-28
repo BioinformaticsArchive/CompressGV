@@ -41,10 +41,15 @@ int main(int argc, char *argv[]){
 		granthamNumVariants[v] = getVariants(fp[v+1], &(granthamVariants[v]), &granthamMSA, v==2, argv[v+2]);
 	}
 
-	double *c = optimiseCoefficients();
-	double solution[] = GRANTHAM_SCALED;
-	fprintf(stderr, "Clustering: %f\n", granthamCluster(&(solution[0])));
-	fprintf(stderr, "c: %f	p: %f	v: %f	k: %f\n", solution[0], solution[1], solution[2], solution[3]);
+
+
+	matthews_t *matt = assessModel();
+	fprintf(stdout, "TP: %i	TN: %i	FP: %i	FN: %i\n", matt->tp, matt->tn, matt->fp, matt->fn);
+	fprintf(stdout, "MCC: %f\n", matt->coefficient);
+	fprintf(stdout, "Chi-squared (%i): %f\n", matt->degreesOfFreedom, matt->chiSquare);
+	//free(matt);
+
+
 
 	closeFiles(fp, 4);
 	free(granthamMSA.acids);
@@ -70,8 +75,8 @@ double* optimiseCoefficients(){
 	pso_settings_t settings;
 	pso_set_default_settings(&settings);
 
-	settings.size = 30;
-	settings.steps = 30;
+	settings.size = 20;
+	settings.steps = 20;
 
 	settings.dim = 4;
 	settings.nhood_strategy = PSO_NHOOD_RANDOM;
@@ -90,4 +95,64 @@ double* optimiseCoefficients(){
 	pso_solve(obj_fun, NULL, &solution, &settings);
 
 	return solution.gbest;
+}
+
+// Iterate through all known variants, optimise the model with the variant excluded, and classify the variant
+// Return the Matthews correlation coefficient
+matthews_t* assessModel(){
+	int i, j, r;
+	matthews_t *matt = (matthews_t*) calloc(sizeof(matthews_t), 0);
+	variant_t *classify = (variant_t*) malloc(sizeof(variant_t));
+
+	for(i=0; i<2; i++){
+		granthamNumVariants[i]--; //exclude the last variant in this set
+
+		for(j=0; j<granthamNumVariants[i]+1; j++){
+			double *c = optimiseCoefficients();
+			double scaled[] = GRANTHAM_SCALED;
+			memcpy(classify, granthamVariants[i] + granthamNumVariants[i], sizeof(variant_t)); //note that granthamNumVariants[i] has already been decremented so this passes the excluded variant
+
+			fprintf(stderr, "%c%i%c	", classify->wt, classify->pos+1, classify->variant);
+
+			if(granthamClassify(classify, &(scaled[0]))){
+				if(!i){
+					matt->tp++;
+					fprintf(stderr, "TP");
+				}
+				else {
+					matt->fp++;
+					fprintf(stderr, "FP");
+				}
+			}
+			else {
+				if(!i){
+					matt->fn++;
+					fprintf(stderr, "FN");
+				}
+				else {
+					matt->tn++;
+					fprintf(stderr, "TN");
+				}
+			}
+
+			fprintf(stderr, "\n");
+
+			// Rotate the variants so the next one is excluded
+			for(r=granthamNumVariants[i]-1; r>=0; r--){
+				memcpy(granthamVariants[i] + r + 1, granthamVariants[i] + r, sizeof(variant_t));
+			}
+			memcpy(granthamVariants[i], classify, sizeof(variant_t));
+
+			free(c);
+		}
+
+		granthamNumVariants[i]++;
+	}
+
+	free(classify);
+
+	matt->coefficient = (matt->tp*matt->tn - matt->fp*matt->fn) / sqrt((matt->tp + matt->fp) * (matt->tp + matt->fn) * (matt->tn + matt->fp) * (matt->tn + matt->fn));
+	matt->degreesOfFreedom = matt->tp + matt->tn + matt->fp + matt->fn - 1;
+	matt->chiSquare = pow(matt->coefficient, 2) * (matt->degreesOfFreedom+1);
+	return matt;
 }

@@ -336,7 +336,7 @@ double granthamMetric(variant_t *var, double *coeff){
 	return gv(&(snp[0]), 2, coeff) * pow(coeff[3], -gv(var->msa, granthamMSA.no_of_species, coeff));
 }
 
-double granthamCluster(double *coeff){
+double granthamCluster(double *coeff, int returnCutoff){
 	double mean[2] = {0., 0.};
 	double sd2[2] = {0., 0.};
 	double metric, delta;
@@ -353,8 +353,13 @@ double granthamCluster(double *coeff){
 		}
 	}
 
-	double denom = sd2[0] + sd2[1];
-	return denom ? (mean[0] - mean[1])/(sqrt(sd2[0]) + sqrt(sd2[1])) : -1;
+	if(returnCutoff){
+		return (mean[0] + mean[1])/2;
+	}
+	else {
+		double denom = sd2[0] + sd2[1];
+		return denom ? (mean[0] - mean[1])/(sqrt(sd2[0]) + sqrt(sd2[1])) : -1;
+	}
 }
 
 #define GRANTHAM_K_SCALE (GRANTHAM_K_MAX-1)*c[3]/GRANTHAM_PSO_SCALE+1
@@ -367,5 +372,9 @@ double granthamCluster(double *coeff){
 
 double granthamPSO(double *c, int dim, void *params) {
 	double coeff[4] = GRANTHAM_SCALED;
-	return -granthamCluster(&(coeff[0]));
+	return -granthamCluster(&(coeff[0]), false);
+}
+
+bool granthamClassify(variant_t *var, double *coeff){
+	return granthamMetric(var, coeff) > granthamCluster(coeff, true);
 }
