@@ -16,6 +16,10 @@
 #include <stddef.h>
 #include "uthash.h"
 
+#define GRANTHAM_PSO_SCALE 1e6
+#define GRANTHAM_K_MAX 10
+#define GRANTHAM_K_ONLY 1
+
 typedef char aa_t;
 
 typedef enum {
@@ -24,7 +28,7 @@ typedef enum {
 
 typedef struct {
 	aa_t aa;
-	float properties[3];
+	double properties[3];
 	UT_hash_handle hh;
 } aaProp_t;
 
@@ -40,6 +44,19 @@ typedef struct {
 	int length;
 	aa_t *acids;
 } msa_t;
+
+typedef struct {
+	aaProp_t *properties;
+	msa_t *msa;
+	variant_t *variants[2];
+	int nVariants[2];
+	double coeff[4];
+} granthamParam_t;
+
+msa_t granthamMSA;
+variant_t *granthamVariants[3];
+int granthamNumVariants[3];
+aaProp_t *granthamAAProperties;
 
 aaProp_t* getAcidProperties(){
 	aaProp_t *hash = NULL, *props;
@@ -96,8 +113,8 @@ void granthamFree(aaProp_t *props){
 	#define fmax(a,b) ((a)>(b) ? (a) : (b))
 #endif
 
-float gv(aaProp_t *properties, aa_t *acids, unsigned int n, float *coeff){
-	float minP, maxP, gv = 0.;
+double gv(aa_t *acids, unsigned int n, double *coeff){
+	double minP, maxP, gv = 0.;
 	int i;
 	aaProp_t *aaProp;
 
@@ -106,9 +123,9 @@ float gv(aaProp_t *properties, aa_t *acids, unsigned int n, float *coeff){
 		maxP = 0.;
 		int a;
 		for(a=0; a<n; a++){
-			HASH_FIND(hh, properties, &(acids[a]), sizeof(aa_t), aaProp);
+			HASH_FIND(hh, granthamAAProperties, &(acids[a]), sizeof(aa_t), aaProp);
 			if(aaProp!=NULL){
-				float prop = aaProp->properties[i];
+				double prop = aaProp->properties[i];
 				minP = fmin(minP, prop);
 				maxP = fmax(maxP, prop);
 			}
@@ -122,7 +139,7 @@ float gv(aaProp_t *properties, aa_t *acids, unsigned int n, float *coeff){
 	return sqrt(gv);
 }
 
-void granthamCoefficients(float *coeff){
+void granthamCoefficients(double *coeff){
 	coeff[0] = 1.833;
 	coeff[1] = 0.1018;
 	coeff[2] = 0.000399;
@@ -314,28 +331,41 @@ int getVariants(FILE *fp, variant_t** varsPtr, msa_t *msa, bool canBeEmpty, char
 	return n;
 }
 
-float granthamMetric(variant_t *var, aaProp_t *properties, float *coeff, msa_t *msa){
+double granthamMetric(variant_t *var, double *coeff){
 	aa_t snp[2] = {var->wt, var->variant};
-	return gv(properties, &(snp[0]), 2, coeff) * pow(coeff[k], -gv(properties, msa->acids, msa->no_of_species, coeff));
+	return gv(&(snp[0]), 2, coeff) * pow(coeff[3], -gv(var->msa, granthamMSA.no_of_species, coeff));
 }
 
-float granthamCluster(variant_t *variants[], int nVariants[], aaProp_t *properties, float *coeff, msa_t *msa){
-	float mean[2] = {0., 0.};
-	float sd2[2] = {0., 0.};
-	float metric, delta;
+double granthamCluster(double *coeff){
+	double mean[2] = {0., 0.};
+	double sd2[2] = {0., 0.};
+	double metric, delta;
 
 	int i, j;
 	for(i=0; i<2; i++){
-		for(j=0; j<nVariants[i]; j++){
-			metric = granthamMetric(variants[i] + j, properties, coeff, msa);
+		for(j=0; j<granthamNumVariants[i]; j++){
+			metric = granthamMetric(granthamVariants[i] + j, coeff);
 
 			//See http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
 			delta = metric - mean[i];
 			mean[i] += delta / (j+1);
-			sd2[i] += delta * (metric-mean[i]) / (nVariants[i]-1);
+			sd2[i] += delta * (metric-mean[i]) / (granthamNumVariants[i]-1);
 		}
-		fprintf(stderr, "\n");
 	}
 
-	return (mean[0] - mean[1])/(sqrt(sd2[0]) + sqrt(sd2[1]));
+	double denom = sd2[0] + sd2[1];
+	return denom ? (mean[0] - mean[1])/(sqrt(sd2[0]) + sqrt(sd2[1])) : -1;
+}
+
+#define GRANTHAM_K_SCALE (GRANTHAM_K_MAX-1)*c[3]/GRANTHAM_PSO_SCALE+1
+
+#if GRANTHAM_K_ONLY==1
+#define GRANTHAM_SCALED {1.833, 0.1018, 0.000399, GRANTHAM_K_SCALE}
+#else
+#define GRANTHAM_SCALED {c[0]/GRANTHAM_PSO_SCALE, c[1]/GRANTHAM_PSO_SCALE, c[2]/GRANTHAM_PSO_SCALE, GRANTHAM_K_SCALE}
+#endif
+
+double granthamPSO(double *c, int dim, void *params) {
+	double coeff[4] = GRANTHAM_SCALED;
+	return -granthamCluster(&(coeff[0]));
 }

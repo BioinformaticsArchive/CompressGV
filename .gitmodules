@@ -1,0 +1,3 @@
+[submodule "pso"]
+	path = pso
+	url = git@github.com:aschlosberg/pso.git

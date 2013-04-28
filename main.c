@@ -8,6 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
+#include <string.h>
+#include "pso/pso.h"
+#include "pso/pso.c"
 #include "grantham.h"
 #include "main.h"
 
@@ -18,13 +22,8 @@ int main(int argc, char *argv[]){
 	}
 
 	FILE *fp[4];
-	msa_t msa;
-	variant_t *variants[3];
-	int nVariants[3];
-	float coeff[5];
 
-	aaProp_t *props = granthamInit();
-	granthamCoefficients(&(coeff[0]));
+	granthamAAProperties = granthamInit();
 
 	int f;
 	for(f=0; f<4; f++){
@@ -35,21 +34,25 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-	getMSA(fp[0], &msa);
+	getMSA(fp[0], &granthamMSA);
 
 	int v;
 	for(v=0; v<3; v++){
-		nVariants[v] = getVariants(fp[v+1], &(variants[v]), &msa, v==2, argv[v+2]);
+		granthamNumVariants[v] = getVariants(fp[v+1], &(granthamVariants[v]), &granthamMSA, v==2, argv[v+2]);
 	}
 
-	fprintf(stderr, "%f\n", granthamMetric(variants[0], props, &(coeff[0]), &msa));
+	double *c = optimiseCoefficients();
+	double solution[] = GRANTHAM_SCALED;
+	fprintf(stderr, "Clustering: %f\n", granthamCluster(&(solution[0])));
+	fprintf(stderr, "c: %f	p: %f	v: %f	k: %f\n", solution[0], solution[1], solution[2], solution[3]);
 
 	closeFiles(fp, 4);
-	free(msa.acids);
-	//granthamFree(props);
+	free(granthamMSA.acids);
+	free(c);
+	//granthamFree(granthamAAProperties);
 	for(v=0; v<3; v++){
-		if(nVariants[v]){
-			free(variants[v]);
+		if(granthamNumVariants[v]){
+			free(granthamVariants[v]);
 		}
 	}
 	return 0;
@@ -60,4 +63,31 @@ void closeFiles(FILE *fp[], int f){
 	for(i=0; i<f; i++){
 		fclose(fp[i]);
 	}
+}
+
+double* optimiseCoefficients(){
+	pso_obj_fun_t obj_fun = granthamPSO;
+	pso_settings_t settings;
+	pso_set_default_settings(&settings);
+
+	settings.size = 30;
+	settings.steps = 30;
+
+	settings.dim = 4;
+	settings.nhood_strategy = PSO_NHOOD_RANDOM;
+	settings.nhood_size = 10;
+	settings.w_strategy = PSO_W_CONST;
+	settings.x_lo = 0;
+	settings.x_hi = GRANTHAM_PSO_SCALE;
+	settings.goal = -99999; //deliberately unachievable
+	// Seed with a constant to allow reproducibility of results
+	settings.seed = 314159265;
+	settings.print_every = 0;
+
+	pso_result_t solution;
+	solution.gbest = malloc(settings.dim * sizeof(double));
+
+	pso_solve(obj_fun, NULL, &solution, &settings);
+
+	return solution.gbest;
 }
