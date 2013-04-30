@@ -129,7 +129,7 @@ double gv(aa_t *acids, unsigned int n, double *coeff){
 				minP = fmin(minP, prop);
 				maxP = fmax(maxP, prop);
 			}
-			else if(acids[a]!='-'){
+			else if(acids[a]!='-' && acids[a]!='X'){
 				fprintf(stderr, "Could not find properties for amino acid: %c\n", acids[a]);
 				return -1.;
 			}
