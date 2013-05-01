@@ -13,7 +13,8 @@
 #endif /* MAIN_H_ */
 
 typedef struct {
-	unsigned int tp, tn, fp, fn, degreesOfFreedom;
+	int tp, tn, fp, fn; // can not be unsigned otherwise calculation of negative coefficients fail
+	unsigned int degreesOfFreedom;
 	double coefficient, chiSquare;
 } matthews_t;
 

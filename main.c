@@ -52,12 +52,12 @@ int main(int argc, char *argv[]){
 
 
 	closeFiles(fp, 4);
-	free(granthamMSA.acids);
-	free(c);
+	//free(granthamMSA.acids);
+	//free(c);
 	//granthamFree(granthamAAProperties);
 	for(v=0; v<3; v++){
 		if(granthamNumVariants[v]){
-			free(granthamVariants[v]);
+			//free(granthamVariants[v]);
 		}
 	}
 	return 0;
@@ -151,7 +151,9 @@ matthews_t* assessModel(){
 
 	free(classify);
 
-	matt->coefficient = (matt->tp*matt->tn - matt->fp*matt->fn) / sqrt((matt->tp + matt->fp) * (matt->tp + matt->fn) * (matt->tn + matt->fp) * (matt->tn + matt->fn));
+#define NO_ZERO(a,b) (a==0 && b==0 ? 1 : a+b)
+
+	matt->coefficient = (matt->tp*matt->tn - matt->fp*matt->fn) / sqrt(NO_ZERO(matt->tp, matt->fp) * NO_ZERO(matt->tp, matt->fn) * NO_ZERO(matt->tn, matt->fp) * NO_ZERO(matt->tn, matt->fn));
 	matt->degreesOfFreedom = matt->tp + matt->tn + matt->fp + matt->fn - 1;
 	matt->chiSquare = pow(matt->coefficient, 2) * (matt->degreesOfFreedom+1);
 	return matt;
