@@ -375,6 +375,12 @@ double granthamPSO(double *c, int dim, void *params) {
 	return -granthamCluster(&(coeff[0]), false);
 }
 
-bool granthamClassify(variant_t *var, double *coeff){
-	return granthamMetric(var, coeff) > granthamCluster(coeff, true);
+bool granthamClassify(variant_t *var, double *coeff, double *outcome){
+	double metric = granthamMetric(var, coeff);
+	double cutoff = granthamCluster(coeff, true);
+	if(outcome!=NULL){
+		outcome[0] = metric;
+		outcome[1] = cutoff;
+	}
+	return metric > cutoff;
 }

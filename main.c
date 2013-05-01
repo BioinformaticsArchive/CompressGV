@@ -103,6 +103,7 @@ matthews_t* assessModel(){
 	int i, j, r;
 	matthews_t *matt = (matthews_t*) calloc(sizeof(matthews_t), 0);
 	variant_t *classify = (variant_t*) malloc(sizeof(variant_t));
+	double *outcome = (double*) malloc(2*sizeof(double));
 
 	for(i=0; i<2; i++){
 		granthamNumVariants[i]--; //exclude the last variant in this set
@@ -114,7 +115,7 @@ matthews_t* assessModel(){
 
 			fprintf(stderr, "%c%i%c	", classify->wt, classify->pos+1, classify->variant);
 
-			if(granthamClassify(classify, &(scaled[0]))){
+			if(granthamClassify(classify, &(scaled[0]), outcome)){
 				if(!i){
 					matt->tp++;
 					fprintf(stderr, "TP");
@@ -135,7 +136,7 @@ matthews_t* assessModel(){
 				}
 			}
 
-			fprintf(stderr, "\n");
+			fprintf(stderr, "	%f %c %f\n", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1]);
 
 			// Rotate the variants so the next one is excluded
 			for(r=granthamNumVariants[i]-1; r>=0; r--){
@@ -150,6 +151,7 @@ matthews_t* assessModel(){
 	}
 
 	free(classify);
+	free(outcome);
 
 #define NO_ZERO(a,b) (a==0 && b==0 ? 1 : a+b)
 
