@@ -336,7 +336,7 @@ double granthamMetric(variant_t *var, double *coeff){
 	return gv(&(snp[0]), 2, coeff) * pow(coeff[3], -gv(var->msa, granthamMSA.no_of_species, coeff));
 }
 
-double granthamCluster(double *coeff, int returnCutoff){
+double granthamCluster(double *coeff, int returnCutoff, double *returnAll){
 	double mean[2] = {0., 0.};
 	double sd2[2] = {0., 0.};
 	double metric, delta;
@@ -351,6 +351,13 @@ double granthamCluster(double *coeff, int returnCutoff){
 			mean[i] += delta / (j+1);
 			sd2[i] += delta * (metric-mean[i]) / (granthamNumVariants[i]-1);
 		}
+	}
+
+	if(returnAll!=NULL){
+		returnAll[0] = mean[0];
+		returnAll[1] = mean[1];
+		returnAll[2] = sd2[0];
+		returnAll[3] = sd2[1];
 	}
 
 	if(returnCutoff){
@@ -372,12 +379,12 @@ double granthamCluster(double *coeff, int returnCutoff){
 
 double granthamPSO(double *c, int dim, void *params) {
 	double coeff[4] = GRANTHAM_SCALED;
-	return -granthamCluster(&(coeff[0]), false);
+	return -granthamCluster(&(coeff[0]), false, NULL);
 }
 
 bool granthamClassify(variant_t *var, double *coeff, double *outcome){
 	double metric = granthamMetric(var, coeff);
-	double cutoff = granthamCluster(coeff, true);
+	double cutoff = granthamCluster(coeff, true, outcome==NULL ? NULL : outcome + 2);
 	if(outcome!=NULL){
 		outcome[0] = metric;
 		outcome[1] = cutoff;

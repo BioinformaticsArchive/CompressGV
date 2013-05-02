@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
 
 
 
-	closeFiles(fp, 4);
+	//closeFiles(fp, 4);
 	//free(granthamMSA.acids);
 	//free(c);
 	//granthamFree(granthamAAProperties);
@@ -103,7 +103,7 @@ matthews_t* assessModel(){
 	int i, j, r;
 	matthews_t *matt = (matthews_t*) calloc(sizeof(matthews_t), 0);
 	variant_t *classify = (variant_t*) malloc(sizeof(variant_t));
-	double *outcome = (double*) malloc(2*sizeof(double));
+	double *outcome = (double*) malloc(6*sizeof(double));
 
 	for(i=0; i<2; i++){
 		granthamNumVariants[i]--; //exclude the last variant in this set
@@ -136,7 +136,7 @@ matthews_t* assessModel(){
 				}
 			}
 
-			fprintf(stderr, "	%f %c %f\n", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1]);
+			fprintf(stderr, "	%f %c %f	%f	%f	%f	%f\n", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], outcome[2], outcome[3], outcome[4], outcome[5]);
 
 			// Rotate the variants so the next one is excluded
 			for(r=granthamNumVariants[i]-1; r>=0; r--){
