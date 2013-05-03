@@ -14,7 +14,6 @@
 
 typedef struct {
 	int tp, tn, fp, fn; // can not be unsigned otherwise calculation of negative coefficients fail
-	unsigned int degreesOfFreedom;
 	double coefficient, chiSquare;
 } matthews_t;
 

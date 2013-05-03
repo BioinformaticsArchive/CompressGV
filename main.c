@@ -46,7 +46,7 @@ int main(int argc, char *argv[]){
 	matthews_t *matt = assessModel();
 	fprintf(stdout, "TP: %i	TN: %i	FP: %i	FN: %i\n", matt->tp, matt->tn, matt->fp, matt->fn);
 	fprintf(stdout, "MCC: %f\n", matt->coefficient);
-	fprintf(stdout, "Chi-squared (%i): %f\n", matt->degreesOfFreedom, matt->chiSquare);
+	fprintf(stdout, "Chi-squared: %f\n", matt->chiSquare);
 	//free(matt);
 
 
@@ -136,7 +136,7 @@ matthews_t* assessModel(){
 				}
 			}
 
-			fprintf(stderr, "	%f %c %f	%f	%f	%f	%f\n", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], outcome[2], outcome[3], outcome[4], outcome[5]);
+			fprintf(stderr, "	%f %c %f	%f	%f	%f	%f	%i	%i\n", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], outcome[2], outcome[3], outcome[4], outcome[5], granthamNumVariants[0], granthamNumVariants[1]);
 
 			// Rotate the variants so the next one is excluded
 			for(r=granthamNumVariants[i]-1; r>=0; r--){
@@ -156,7 +156,6 @@ matthews_t* assessModel(){
 #define NO_ZERO(a,b) (a==0 && b==0 ? 1 : a+b)
 
 	matt->coefficient = (matt->tp*matt->tn - matt->fp*matt->fn) / sqrt(NO_ZERO(matt->tp, matt->fp) * NO_ZERO(matt->tp, matt->fn) * NO_ZERO(matt->tn, matt->fp) * NO_ZERO(matt->tn, matt->fn));
-	matt->degreesOfFreedom = matt->tp + matt->tn + matt->fp + matt->fn - 1;
-	matt->chiSquare = pow(matt->coefficient, 2) * (matt->degreesOfFreedom+1);
+	matt->chiSquare = pow(matt->coefficient, 2) * (granthamNumVariants[0] + granthamNumVariants[1]);
 	return matt;
 }
