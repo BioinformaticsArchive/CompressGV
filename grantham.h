@@ -114,28 +114,31 @@ void granthamFree(aaProp_t *props){
 #endif
 
 double gv(aa_t *acids, unsigned int n, double *coeff){
-	double minP, maxP, gv = 0.;
-	int i;
+	double minP[3], maxP[3], gv = 0.;
+	int i, a;
 	aaProp_t *aaProp;
 
 	for(i=0; i<3; i++){
-		minP = 999.;
-		maxP = 0.;
-		int a;
-		for(a=0; a<n; a++){
-			HASH_FIND(hh, granthamAAProperties, &(acids[a]), sizeof(aa_t), aaProp);
-			if(aaProp!=NULL){
+		minP[i] = 999.;
+		maxP[i] = 0.;
+	}
+
+	for(a=0; a<n; a++){
+		HASH_FIND(hh, granthamAAProperties, &(acids[a]), sizeof(aa_t), aaProp);
+		if(aaProp!=NULL){
+			for(i=0; i<3; i++){
 				double prop = aaProp->properties[i];
-				minP = fmin(minP, prop);
-				maxP = fmax(maxP, prop);
-			}
-			else if(acids[a]!='-' && acids[a]!='X'){
-				fprintf(stderr, "Could not find properties for amino acid: %c\n", acids[a]);
-				return -1.;
+				minP[i] = fmin(minP[i], prop);
+				maxP[i] = fmax(maxP[i], prop);
+				gv += coeff[i] * pow(maxP[i]-minP[i], 2);
 			}
 		}
-		gv += coeff[i] * pow(maxP-minP, 2);
+		else if(acids[a]!='-' && acids[a]!='X'){
+			fprintf(stderr, "Could not find properties for amino acid: %c\n", acids[a]);
+			return -1.;
+		}
 	}
+
 	return sqrt(gv);
 }
 
