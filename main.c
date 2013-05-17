@@ -47,6 +47,7 @@ int main(int argc, char *argv[]){
 	fprintf(stdout, "TP: %i	TN: %i	FP: %i	FN: %i\n", matt->tp, matt->tn, matt->fp, matt->fn);
 	fprintf(stdout, "MCC: %f\n", matt->coefficient);
 	fprintf(stdout, "Chi-squared: %f\n", matt->chiSquare);
+	fprintf(stdout, "Sens.: %f	Spec.: %f\n", (double) matt->tp / (matt->tp + matt->fn), (double) matt->tn / (matt->tn + matt->fp));
 	//free(matt);
 
 
@@ -136,7 +137,7 @@ matthews_t* assessModel(){
 				}
 			}
 
-			fprintf(stderr, "	%f %c %f	%f	%f	%f	%f	%i	%i\n", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], outcome[2], outcome[3], outcome[4], outcome[5], granthamNumVariants[0], granthamNumVariants[1]);
+			fprintf(stderr, "	%f %c %f	%f	%f	%f	%f	%i	%i	%f\n", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], outcome[2], outcome[3], outcome[4], outcome[5], granthamNumVariants[0], granthamNumVariants[1], scaled[3]);
 
 			// Rotate the variants so the next one is excluded
 			for(r=granthamNumVariants[i]-1; r>=0; r--){
