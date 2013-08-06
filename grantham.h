@@ -135,6 +135,7 @@ void granthamFree(aaProp_t *props){
 	#define fmax(a,b) ((a)>(b) ? (a) : (b))
 #endif
 
+// return GV (GS for n=2) of a set of amino acids, given coefficients c, p, v as defined in the manuscript section 3.1, equation (2)
 double gv(aa_t *acids, unsigned int n, double *coeff){
 	double minP[3], maxP[3], gv = 0.;
 	int i, a;
@@ -164,6 +165,7 @@ double gv(aa_t *acids, unsigned int n, double *coeff){
 	return sqrt(gv);
 }
 
+//default values of coefficients alpha, beta, gamma (manuscript sections 2 and 3.1) + starting with k=1 (GM is independent of GV)
 void granthamCoefficients(double *coeff){
 	coeff[0] = 1.833;
 	coeff[1] = 0.1018;
@@ -356,11 +358,15 @@ int getVariants(FILE *fp, variant_t** varsPtr, msa_t *msa, bool canBeEmpty, char
 	return n;
 }
 
+// GM as defined in manuscript equation (3)
 double granthamMetric(variant_t *var, double *coeff){
 	aa_t snp[2] = {var->wt, var->variant};
 	return gv(&(snp[0]), 2, coeff) * pow(coeff[3], -gv(var->msa, granthamMSA.no_of_species, coeff));
 }
 
+// determine clustering and return either:
+// index R as defined in manuscript section 3.2 equation (4)
+// OR cut-off C as defined in manuscript section 3.4.1, equation (5)
 double granthamCluster(double *coeff, int returnCutoff, double *returnAll){
 	double mean[2] = {0., 0.};
 	double sd2[2] = {0., 0.};
@@ -402,6 +408,7 @@ double granthamCluster(double *coeff, int returnCutoff, double *returnAll){
 #define GRANTHAM_SCALED {c[0]/GRANTHAM_PSO_SCALE, c[1]/GRANTHAM_PSO_SCALE, c[2]/GRANTHAM_PSO_SCALE, GRANTHAM_K_SCALE}
 #endif
 
+// function to interface with PSO
 double granthamPSO(double *c, int dim, void *params) {
 	double coeff[4] = GRANTHAM_SCALED;
 	return -granthamCluster(&(coeff[0]), false, NULL);

@@ -40,6 +40,8 @@ This file is part of https://github.com/aschlosberg/SNP (SNP)
 int main(int argc, char *argv[]){
 	if(argc!=5){
 		fprintf(stderr, "Usage: ./grantham <msa> <deleterious> <neutral> <classify>\n");
+		fprintf(stderr, "<msa> file format: one species per line; amino acid, -, or X only; human first (use fastaToSingleLine.sh for existing FASTA alignments)\n");
+		fprintf(stderr, "Other files one SNP per line: wild-type amino acid, position, variant; e.g. A34F\n");
 		return 1;
 	}
 
@@ -64,13 +66,15 @@ int main(int argc, char *argv[]){
 	}
 
 
-
+	// Leave-one-out cross-validation
 	matthews_t *matt = assessModel();
 	fprintf(stdout, "TP: %i	TN: %i	FP: %i	FN: %i\n", matt->tp, matt->tn, matt->fp, matt->fn);
 	fprintf(stdout, "MCC: %f\n", matt->coefficient);
 	fprintf(stdout, "Chi-squared: %f\n", matt->chiSquare);
 	fprintf(stdout, "Sens.: %f	Spec.: %f\n", (double) matt->tp / (matt->tp + matt->fn), (double) matt->tn / (matt->tn + matt->fp));
 	//free(matt);
+
+
 
 
 
