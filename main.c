@@ -38,6 +38,7 @@ This file is part of https://github.com/aschlosberg/SNP (SNP)
 #include "main.h"
 
 int main(int argc, char *argv[]){
+
 	if(argc!=5){
 		fprintf(stderr, "Usage: ./grantham <msa> <deleterious> <neutral> <classify>\n");
 		fprintf(stderr, "<msa> file format: one species per line; amino acid, -, or X only; human first (use fastaToSingleLine.sh for existing FASTA alignments)\n");
@@ -65,6 +66,21 @@ int main(int argc, char *argv[]){
 		granthamNumVariants[v] = getVariants(fp[v+1], &(granthamVariants[v]), &granthamMSA, v==2, argv[v+2]);
 	}
 
+	// Classify novel variants
+	if(granthamNumVariants[2]){
+		double *c = optimiseCoefficients();
+		double scaled[] = GRANTHAM_SCALED;
+		double *outcome = (double*) malloc(6*sizeof(double));
+		fprintf(stdout, "--- Novel classification ---\n\n%-9s%-6s%-10s  %-10s%10s\n-----------------------------------------------\n", "Variant", "Pred", "GM", "C", "ln(GM/C)");
+		for(v=0; v<granthamNumVariants[2]; v++){
+			variant_t *classify = &(granthamVariants[2][v]);
+			fprintf(stdout, "%c%i%c%*s", classify->wt, classify->pos+1, classify->variant, (int) (7-ceil(log(classify->pos+1)/log(10))), "");
+			bool pred = granthamClassify(classify, &(scaled[0]), outcome);
+			fprintf(stdout, "%-6s%-10f%c %-10f%10f\n", pred ? "D" : "N", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], log(outcome[0]/outcome[1]));
+		}
+		free(outcome);
+	}
+
 
 	// Leave-one-out cross-validation
 	matthews_t *matt = assessModel();
@@ -73,9 +89,6 @@ int main(int argc, char *argv[]){
 	fprintf(stdout, "Chi-squared: %f\n", matt->chiSquare);
 	fprintf(stdout, "Sens.: %f	Spec.: %f\n", (double) matt->tp / (matt->tp + matt->fn), (double) matt->tn / (matt->tn + matt->fp));
 	//free(matt);
-
-
-
 
 
 	//closeFiles(fp, 4);
@@ -102,10 +115,10 @@ double* optimiseCoefficients(){
 	pso_settings_t settings;
 	pso_set_default_settings(&settings);
 
-	settings.size = 20;
-	settings.steps = 20;
+	settings.size = 40;
+	settings.steps = 40;
 
-	settings.dim = 4;
+	settings.dim = GRANTHAM_COEFF;
 	settings.nhood_strategy = PSO_NHOOD_RANDOM;
 	settings.nhood_size = 10;
 	settings.w_strategy = PSO_W_CONST;
@@ -132,6 +145,8 @@ matthews_t* assessModel(){
 	variant_t *classify = (variant_t*) malloc(sizeof(variant_t));
 	double *outcome = (double*) malloc(6*sizeof(double));
 
+	fprintf(stderr, "--- Cross-validation ---\n\n%-9s%-6s%-10s  %-10s%10s\n-----------------------------------------------\n", "Variant", "Pred", "GM", "C", "ln(GM/C)");
+
 	for(i=0; i<2; i++){
 		granthamNumVariants[i]--; //exclude the last variant in this set
 
@@ -140,7 +155,7 @@ matthews_t* assessModel(){
 			double scaled[] = GRANTHAM_SCALED;
 			memcpy(classify, granthamVariants[i] + granthamNumVariants[i], sizeof(variant_t)); //note that granthamNumVariants[i] has already been decremented so this passes the excluded variant
 
-			fprintf(stderr, "%c%i%c	", classify->wt, classify->pos+1, classify->variant);
+			fprintf(stderr, "%c%i%c%*s", classify->wt, classify->pos+1, classify->variant, (int) (7-ceil(log(classify->pos+1)/log(10))), "");
 
 			if(granthamClassify(classify, &(scaled[0]), outcome)){
 				if(!i){
@@ -163,7 +178,8 @@ matthews_t* assessModel(){
 				}
 			}
 
-			fprintf(stderr, "	%f %c %f	%f	%f	%f	%f	%i	%i	%f\n", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], outcome[2], outcome[3], outcome[4], outcome[5], granthamNumVariants[0], granthamNumVariants[1], scaled[3]);
+			//fprintf(stderr, "	%f %c %f	%f	%f	%f	%f	%i	%i	%f\n", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], outcome[2], outcome[3], outcome[4], outcome[5], granthamNumVariants[0], granthamNumVariants[1], scaled[3]);
+			fprintf(stderr, "%4s%-10f%c %-10f%10f	%f\n", "", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], log(outcome[0]/outcome[1]), scaled[4]);
 
 			// Rotate the variants so the next one is excluded
 			for(r=granthamNumVariants[i]-1; r>=0; r--){
