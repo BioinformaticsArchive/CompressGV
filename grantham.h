@@ -37,10 +37,13 @@ This file is part of https://github.com/aschlosberg/SNP (SNP)
 #include <math.h>
 #include <stddef.h>
 #include "uthash.h"
+#include "zlib.h"
 
 #define GRANTHAM_PSO_SCALE 1e6
 #define GRANTHAM_K_MAX 10
+#define GRANTHAM_KOLMOG_MAX 10
 #define GRANTHAM_K_ONLY 1
+#define GRANTHAM_COEFF 5
 
 typedef char aa_t;
 
@@ -59,6 +62,8 @@ typedef struct {
 	aa_t wt;
 	aa_t variant;
 	aa_t *msa;
+	double gv;
+	double complexity;
 } variant_t;
 
 typedef struct {
@@ -72,7 +77,7 @@ typedef struct {
 	msa_t *msa;
 	variant_t *variants[2];
 	int nVariants[2];
-	double coeff[4];
+	double coeff[GRANTHAM_COEFF];
 } granthamParam_t;
 
 msa_t granthamMSA;
@@ -257,6 +262,49 @@ bool getMSA(FILE *fp, msa_t *msa){
 	return true;
 }
 
+// Calculate an upper bound on the Kolmogorov Complexity using zlib & return as a ratio of the total number of valid AAs
+// Modified from zpipe.c (public domain) - http://www.zlib.net/zpipe.c
+#define ZLIB_BUFFER_SIZE 256
+double complexityRatio(aa_t *acids, unsigned int n){
+	int ret, flush;
+	z_stream strm;
+	unsigned char in[ZLIB_BUFFER_SIZE];
+	unsigned char out[ZLIB_BUFFER_SIZE];
+
+	int inPos = 0, remain, outLength = 0;
+
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	ret = deflateInit(&strm, 9);
+	if (ret != Z_OK)
+	return ret;
+
+	do {
+		// modified from the original to use the AAs instead of a source file
+		remain = n-inPos;
+		strm.avail_in = remain<ZLIB_BUFFER_SIZE ? remain : ZLIB_BUFFER_SIZE;
+		flush = remain<ZLIB_BUFFER_SIZE ? Z_FINISH : Z_NO_FLUSH;
+		memcpy(in, acids + inPos, sizeof(char)*strm.avail_in);
+		strm.next_in = in;
+		inPos += strm.avail_in;
+
+		do {
+			strm.avail_out = ZLIB_BUFFER_SIZE;
+			strm.next_out = out;
+			ret = deflate(&strm, flush);
+			// just count characters rather than use them for output
+			outLength += ZLIB_BUFFER_SIZE - strm.avail_out;
+		} while (strm.avail_out == 0);
+
+	} while (flush != Z_FINISH);
+
+	(void)deflateEnd(&strm);
+
+	// remove zlib header length
+	return ((double) outLength - 5) / n;
+}
+
 #define STATE_WT 0
 #define STATE_POS 1
 #define STATE_VAR 2
@@ -264,6 +312,11 @@ bool getMSA(FILE *fp, msa_t *msa){
 int getVariants(FILE *fp, variant_t** varsPtr, msa_t *msa, bool canBeEmpty, char* file_name){
 	int n=0, state=STATE_WT, digits=0, pos=0;
 	variant_t *vars, *tmp, *currVar;
+
+#if GRANTHAM_K_ONLY==1
+	double coeff[4];
+	granthamCoefficients(&(coeff[0]));
+#endif
 
 	char c;
 	while((c=getc(fp))!=EOF){
@@ -330,6 +383,11 @@ int getVariants(FILE *fp, variant_t** varsPtr, msa_t *msa, bool canBeEmpty, char
 					currVar->msa[s] = msa->acids[s*msa->length + currVar->pos];
 				}
 
+				currVar->complexity = complexityRatio(currVar->msa, msa->no_of_species);
+#if GRANTHAM_K_ONLY==1
+				currVar->gv = gv(currVar->msa, msa->no_of_species, &(coeff[0]));
+#endif
+
 				currVar->variant = c;
 				state = STATE_VAR;
 			}
@@ -361,7 +419,12 @@ int getVariants(FILE *fp, variant_t** varsPtr, msa_t *msa, bool canBeEmpty, char
 // GM as defined in manuscript equation (3)
 double granthamMetric(variant_t *var, double *coeff){
 	aa_t snp[2] = {var->wt, var->variant};
-	return gv(&(snp[0]), 2, coeff) * pow(coeff[3], -gv(var->msa, granthamMSA.no_of_species, coeff));
+#if GRANTHAM_K_ONLY==1
+#define GV_VAL var->gv
+#else
+#define GV_VAL gv(var->msa, granthamMSA.no_of_species, coeff)
+#endif
+	return gv(&(snp[0]), 2, coeff) * pow(coeff[3], -GV_VAL); // * pow(var->complexity, 1/coeff[4]);
 }
 
 // determine clustering and return either:
@@ -401,16 +464,18 @@ double granthamCluster(double *coeff, int returnCutoff, double *returnAll){
 }
 
 #define GRANTHAM_K_SCALE (GRANTHAM_K_MAX-1)*c[3]/GRANTHAM_PSO_SCALE+1
+//#define GRANTHAM_KOLMOG_SCALE (GRANTHAM_KOLMOG_MAX-1)*c[4]/GRANTHAM_PSO_SCALE+1
+#define GRANTHAM_KOLMOG_SCALE 100*c[4]/GRANTHAM_PSO_SCALE
 
 #if GRANTHAM_K_ONLY==1
-#define GRANTHAM_SCALED {1.833, 0.1018, 0.000399, GRANTHAM_K_SCALE}
+#define GRANTHAM_SCALED {1.833, 0.1018, 0.000399, GRANTHAM_K_SCALE, GRANTHAM_KOLMOG_SCALE}
 #else
-#define GRANTHAM_SCALED {c[0]/GRANTHAM_PSO_SCALE, c[1]/GRANTHAM_PSO_SCALE, c[2]/GRANTHAM_PSO_SCALE, GRANTHAM_K_SCALE}
+#define GRANTHAM_SCALED {c[0]/GRANTHAM_PSO_SCALE, c[1]/GRANTHAM_PSO_SCALE, c[2]/GRANTHAM_PSO_SCALE, GRANTHAM_K_SCALE, GRANTHAM_KOLMOG_SCALE}
 #endif
 
 // function to interface with PSO
 double granthamPSO(double *c, int dim, void *params) {
-	double coeff[4] = GRANTHAM_SCALED;
+	double coeff[GRANTHAM_COEFF] = GRANTHAM_SCALED;
 	return -granthamCluster(&(coeff[0]), false, NULL);
 }
 

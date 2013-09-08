@@ -1,2 +1,2 @@
 grantham: main.c
-	gcc -ggdb -o Debug/grantham main.c -lm -lgsl -lgslcblas
+	gcc -ggdb -o Debug/grantham main.c -lm -lgsl -lgslcblas -lz
