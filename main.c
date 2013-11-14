@@ -82,7 +82,6 @@ int main(int argc, char *argv[]){
 		free(c);
 	}
 
-
 	// Leave-one-out cross-validation
 	matthews_t *matt = assessModel();
 	fprintf(stdout, "TP: %i	TN: %i	FP: %i	FN: %i\n", matt->tp, matt->tn, matt->fp, matt->fn);
@@ -180,7 +179,7 @@ matthews_t* assessModel(){
 			}
 
 			//fprintf(stderr, "	%f %c %f	%f	%f	%f	%f	%i	%i	%f\n", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], outcome[2], outcome[3], outcome[4], outcome[5], granthamNumVariants[0], granthamNumVariants[1], scaled[3]);
-			fprintf(stderr, "%4s%-10f%c %-10f%10f	%f\n", "", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], log(outcome[0]/outcome[1]), scaled[4]);
+			fprintf(stderr, "%4s%-10f%c %-10f%10f\n", "", outcome[0], outcome[0]>outcome[1] ? '>' : '<', outcome[1], log(outcome[0]/outcome[1]));
 
 			// Rotate the variants so the next one is excluded
 			for(r=granthamNumVariants[i]-1; r>=0; r--){
