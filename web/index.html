@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>CompressGV</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<style>
+			body {
+				padding: 40px;
+			}
+		</style>
+	</head>
+	<body>
+	
+		<div class="container-fluid">
+		
+			<div class="navbar">
+				<div class="navbar-inner navbar-fixed-top">
+					<span class="brand">CompressGV</span>
+				</div>
+			</div>
+			
+			<div class="row-fluid">
+				<div class="span2">
+					<div class="well">
+					<ul id="nav" class="nav nav-list">
+						<li><a href="#intro"><i class="icon-home"></i> Introduction</a></li>
+						<li><a href="#use"><i class="icon-wrench"></i> Use CompressGV</a></li>
+					</ul>
+					</div>
+				</div>
+				<div id="container" class="span10">
+
+<div>
+	<a name="intro"></a>
+	<div class="hero-unit">
+		<h1>CompressGV</h1>
+		<br />
+		<p>
+			...is browser-based and desktop software for the classification of novel non-synonymous single-nucleotide polymorphisms (nsSNPs).
+		</p>
+		<p>This website will be extended to include more information after manuscript publication. Please use the example data by clicking the relevant links to copy into the input boxes.</p>
+	</div>
+</div>
+
+<div>
+	<a name="use"></a>
+	<div class="page-header">
+		<h1>Use CompressGV</h1>
+	</div>
+	
+	<div class="tabbable tabs-left">
+		<ul id="tabs" class="nav nav-tabs">
+			<li class="active"><a href="#msa" data-toggle="tab"><i class="icon-tasks"></i> Sequence Alignment</a></li>
+			<li><a href="#del" data-toggle="tab"><i class="icon-thumbs-down"></i> Deleterious nsSNPs</a></li>
+			<li><a href="#neut" data-toggle="tab"><i class="icon-thumbs-up"></i> Neutral nsSNPs</a></li>
+			<li><a href="#novel" data-toggle="tab"><i class="icon-question-sign"></i> Novel nsSNPs</a></li>
+			<li><a id="runLink" href="#run" data-toggle="tab"><i class="icon-play"></i> Run CompressGV</a></li>
+			<li><a id="resultLink" href="#results" data-toggle="tab"><i class="icon-list-alt"></i> Results</a></li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane active" id="msa">
+				<textarea placeholder="Please provide a multiple-species sequence alignment with your reference species first."></textarea>
+				<p>Alignments can be in FASTA format or with each species on a single line with no additional characters.</p>
+				<p>Example of FASTA format:</p>
+<pre class="example">
+&gt;sp|O75445|USH2A_HUMAN Usherin OS=Homo sapiens (segments corresponding to example SNPs only)
+ACVGLERSCRNTNSCREGRCLCHGFCPTPPLRTIVIIARARLNTRDNCCCEPWTTMGTSRPTTTYQRLPG
+&gt;sp|ABC123
+TCVGLERSCRNTHSCREGRCLCHGFCPTPPLTKIVTVAHALFNTREDCCCAPWTAMGTSRPTTTYQRLPQ
+&gt;sp|ABC123
+TCVGLERSCRNTHSCREGRCLCHGLCPTPPLRTIVTLAHALFNARDDCCCAPWTAKGTSLPTTTYQRLPQ
+&gt;sp|ABC123
+TCVGLERSCRNTHSCREGRCLCHGFCPTPPLRIIVTVAHALFNTRDDCCCAPWTAVGTSRPSTTYRRLPQ
+&gt;sp|ABC123
+ACVGLERSCRNTHSCREGRCLCHGFCPTPPLRMVVTVVHAMFNTRDDCCCAPWTAMGTSRPTTTYQRLPQ
+&gt;sp|ABC123
+TCVGLERSCRNTHSCREGRCLCHGFCPTPPLTKIVTVAHALFNTREDCCCAPWTAMGTSRPTTTYQR---
+&gt;sp|ABC123
+TCVGLERSCRNTHSCREGRCLCHGFCPTPPLTKIVTVAHALFNTREDCCCAPWTAMGTSRPTTTYQR---
+&gt;sp|ABC123
+-----------------------------P---IVTIARARFNTRDNCCCAPWTTMGTSRPTTTYQRLPK
+&gt;sp|ABC123
+-----------------------GFCPTPPLRMIVTVAHALFNTRDDCCCAAWTAVGTSRPSTTYQRLPQ
+&gt;sp|ABC123
+-----------------------GFCPTPPLRMIVTVAHALFNTRDDCCCAAWTAVGTSRPSTTYQRLPQ
+&gt;sp|ABC123
+TCVGLDRSCRNTHSCREGRCLCHGFCPAPPVSEIVTLASALFQAREDCCCAPWTTLGTSRPTTTYRRLPQ
+&gt;sp|ABC123
+VCVGLERSCRNTHSCREGRCLCHGFCPSPPLRAIVTLAHALFNIRDDCCCAAWTSVGTSRPTTTYRRLPQ
+&gt;sp|ABC123
+VCVGLERSCRNTHSCREGRCLCHGFCPSPPLRAIVTLAHALFNIRDDCCCAAWTSVGTSRPTTTYRRLPQ
+&gt;sp|ABC123
+----------------------------PPLRMIVTVAHALFNTRDDCCCAAWTAVGTSRPSTTYQR---
+&gt;sp|ABC123
+ACVGLERSCRNTHSCREGRCLCHGFCPTPPLRMVVTVVHAMFNTRDDCCCAPWT----------------
+&gt;sp|ABC123
+TCVGLERSCRNTRSCREGRCLCHGFCPTPPLRRVVTLAHALFNARDDCCC--------------------
+&gt;sp|ABC123
+------------------------------------VVHALFNARDDCCCAPWTDMGTSRPTTTYQRLPQ
+&gt;sp|ABC123
+--------------------LCHGFCPTPPLSTNVNSIKALFNQRANCCCAPWTNEGTSHPTTTYQRLPT
+&gt;sp|ABC123
+TCVGLDRSCRNTNSCRWGRCLCHGFCPMPPLHKLVTVARVLFNARDTCCC--------------------
+&gt;sp|ABC123
+TCVGLERSCRNTHSCREGRCLCHGFCPTPP--TTVTLA-ALFNIR-------------------------
+&gt;sp|ABC123
+VVVGLELGCRNTSSCRDGRCLCHGSCPLAPQSEADVLLHAVINA-QNCCCSP-TCSGVGRPTTTSNLLPD
+&gt;sp|ABC123
+-----------------------------------TLA-ALFNIRNECCCAPWTAEGTS-----------
+&gt;sp|ABC123
+---GLERSCRNTRSCREGRCLCHGWCPTPP----------------------------------------
+&gt;sp|ABC123
+---GLERSCRNTHSCREGRCLCHGLCPTPP----------------------------------------
+&gt;sp|ABC123
+VCVGLERSCRNTHSCREGRCLCHGFCPSPP----------------------------------------
+&gt;sp|ABC123
+TCVGLERSCRNTHSCREGRCLCHGLCPSPP----------------------------------------
+&gt;sp|ABC123
+---GLERSCRNTRSCREGRCLCHGFCPTPP----------------------------------------
+&gt;sp|ABC123
+--VGLERSCRNTHTVREGRCLCHGLCPSPP----------------------------------------
+&gt;sp|ABC123
+---------------------------------TV-LAHA------------------------------
+&gt;sp|ABC123
+------------------------------------LAHA------------------------------
+&gt;sp|ABC123
+----------------------------------VAIAS-------------------------------
+&gt;sp|ABC123
+----------------------------------VTLAH-------------------------------
+&gt;sp|ABC123
+----------------------------------LTLAH-------------------------------
+&gt;sp|ABC123
+----LERSCRNTH-------LCHGFCPS------------------------------------------
+&gt;sp|ABC123
+----------------------------------VTLAH-------------------------------
+&gt;sp|ABC123
+--------------------LCHGFCPS------------------------------------------
+&gt;sp|ABC123
+---------------------------------------------------PWT----------------
+&gt;sp|ABC123
+--VGLELGCRNTSSCRDGRCY-------------------------------------------------
+&gt;sp|ABC123
+---GIERGCRTTAGCGDGRCMCHG----------------------------------------------
+&gt;sp|ABC123
+-----------------------GFCPT------------------------------------------
+&gt;sp|ABC123
+----------------------------------------------DCCC--------------------
+&gt;sp|ABC123
+----------------------------------------------------------------------
+&gt;sp|ABC123
+--VGLERSCRNTH---------------------------------------------------------
+&gt;sp|ABC123
+TCL-------------------------------------------------------------------
+&gt;sp|ABC123
+--VGLERSCRNTQ---------------------------------------------------------
+&gt;sp|ABC123
+-------------------CMCHG----------------------------------------------
+&gt;sp|ABC123
+-------------------CMCHG----------------------------------------------
+&gt;sp|ABC123
+--IGLDRSCRNTH---------------------------------------------------------
+</pre>
+				<p>Example of single-line format:</p>
+<pre class="example">
+ACVGLERSCRNTNSCREGRCLCHGFCPTPPLRTIVIIARARLNTRDNCCCEPWTTMGTSRPTTTYQRLPG
+TCVGLERSCRNTHSCREGRCLCHGFCPTPPLTKIVTVAHALFNTREDCCCAPWTAMGTSRPTTTYQRLPQ
+TCVGLERSCRNTHSCREGRCLCHGLCPTPPLRTIVTLAHALFNARDDCCCAPWTAKGTSLPTTTYQRLPQ
+TCVGLERSCRNTHSCREGRCLCHGFCPTPPLRIIVTVAHALFNTRDDCCCAPWTAVGTSRPSTTYRRLPQ
+ACVGLERSCRNTHSCREGRCLCHGFCPTPPLRMVVTVVHAMFNTRDDCCCAPWTAMGTSRPTTTYQRLPQ
+TCVGLERSCRNTHSCREGRCLCHGFCPTPPLTKIVTVAHALFNTREDCCCAPWTAMGTSRPTTTYQR---
+TCVGLERSCRNTHSCREGRCLCHGFCPTPPLTKIVTVAHALFNTREDCCCAPWTAMGTSRPTTTYQR---
+-----------------------------P---IVTIARARFNTRDNCCCAPWTTMGTSRPTTTYQRLPK
+-----------------------GFCPTPPLRMIVTVAHALFNTRDDCCCAAWTAVGTSRPSTTYQRLPQ
+-----------------------GFCPTPPLRMIVTVAHALFNTRDDCCCAAWTAVGTSRPSTTYQRLPQ
+TCVGLDRSCRNTHSCREGRCLCHGFCPAPPVSEIVTLASALFQAREDCCCAPWTTLGTSRPTTTYRRLPQ
+VCVGLERSCRNTHSCREGRCLCHGFCPSPPLRAIVTLAHALFNIRDDCCCAAWTSVGTSRPTTTYRRLPQ
+VCVGLERSCRNTHSCREGRCLCHGFCPSPPLRAIVTLAHALFNIRDDCCCAAWTSVGTSRPTTTYRRLPQ
+----------------------------PPLRMIVTVAHALFNTRDDCCCAAWTAVGTSRPSTTYQR---
+ACVGLERSCRNTHSCREGRCLCHGFCPTPPLRMVVTVVHAMFNTRDDCCCAPWT----------------
+TCVGLERSCRNTRSCREGRCLCHGFCPTPPLRRVVTLAHALFNARDDCCC--------------------
+------------------------------------VVHALFNARDDCCCAPWTDMGTSRPTTTYQRLPQ
+--------------------LCHGFCPTPPLSTNVNSIKALFNQRANCCCAPWTNEGTSHPTTTYQRLPT
+TCVGLDRSCRNTNSCRWGRCLCHGFCPMPPLHKLVTVARVLFNARDTCCC--------------------
+TCVGLERSCRNTHSCREGRCLCHGFCPTPP--TTVTLA-ALFNIR-------------------------
+VVVGLELGCRNTSSCRDGRCLCHGSCPLAPQSEADVLLHAVINA-QNCCCSP-TCSGVGRPTTTSNLLPD
+-----------------------------------TLA-ALFNIRNECCCAPWTAEGTS-----------
+---GLERSCRNTRSCREGRCLCHGWCPTPP----------------------------------------
+---GLERSCRNTHSCREGRCLCHGLCPTPP----------------------------------------
+VCVGLERSCRNTHSCREGRCLCHGFCPSPP----------------------------------------
+TCVGLERSCRNTHSCREGRCLCHGLCPSPP----------------------------------------
+---GLERSCRNTRSCREGRCLCHGFCPTPP----------------------------------------
+--VGLERSCRNTHTVREGRCLCHGLCPSPP----------------------------------------
+---------------------------------TV-LAHA------------------------------
+------------------------------------LAHA------------------------------
+----------------------------------VAIAS-------------------------------
+----------------------------------VTLAH-------------------------------
+----------------------------------LTLAH-------------------------------
+----LERSCRNTH-------LCHGFCPS------------------------------------------
+----------------------------------VTLAH-------------------------------
+--------------------LCHGFCPS------------------------------------------
+---------------------------------------------------PWT----------------
+--VGLELGCRNTSSCRDGRCY-------------------------------------------------
+---GIERGCRTTAGCGDGRCMCHG----------------------------------------------
+-----------------------GFCPT------------------------------------------
+----------------------------------------------DCCC--------------------
+----------------------------------------------------------------------
+--VGLERSCRNTH---------------------------------------------------------
+TCL-------------------------------------------------------------------
+--VGLERSCRNTQ---------------------------------------------------------
+-------------------CMCHG----------------------------------------------
+-------------------CMCHG----------------------------------------------
+--IGLDRSCRNTH---------------------------------------------------------
+</pre>
+			</div>
+			<div class="tab-pane" id="del">
+				<textarea placeholder="Please provide each deleterious nsSNP on a new line in the format: [wild-type amino acid][position number][variant amino acid]"></textarea>
+				<p></p>
+				<p>For example:</p>
+<pre class="example">
+C2Y
+V3E
+G4R
+L5F
+E6K
+R7C
+R7S
+S8I
+C9Y
+R10Q
+R10W
+N11H
+T12I
+N13T
+S14I
+C15F
+R16C
+E17D
+G18V
+R19T
+C20R
+L21V
+C22S
+H23P
+G24R
+F25L
+C26F
+P27R
+T28N
+P29L
+P30L
+L31R
+T33M
+V35E
+A38D
+R39H
+A40S
+R45G
+C48R
+C49R
+C50R
+P52T
+W53R
+T54M
+G57E
+T58M
+S59I
+R60C
+P61R
+T62M
+T63M
+T64I
+Y65C
+Q66H
+R67G
+L68R
+P69L
+</pre>
+			</div>
+			<div class="tab-pane" id="neut">
+				<textarea placeholder="Please provide each neutral nsSNP on a new line in the format: [wild-type amino acid][position number][variant amino acid]"></textarea>
+				<p>For example:</p>
+<pre class="example">
+A1T
+R32K
+I34T
+I36T
+I37T
+R41Q
+L42F
+N43S
+T44A
+D46N
+N47D
+E51A
+T55I
+M56V
+G70E
+</pre>
+			</div>
+			<div class="tab-pane" id="novel">
+				<textarea placeholder="Please provide each novel nsSNP on a new line in the format: [wild-type amino acid][position number][variant amino acid]"></textarea>
+				<p>For example:</p>
+<pre class="example">
+C2L
+V3G
+G4C
+L5E
+A1I
+R32T
+I34K
+I36V
+</pre>
+			</div>
+			<div class="tab-pane" id="run">
+				Sequence Alignment
+				<pre rel="msa"></pre>
+				Deleterious nsSNPs
+				<pre rel="del"></pre>
+				Neutral nsSNPs
+				<pre rel="neut"></pre>
+				Novel nsSNPs
+				<pre rel="novel"></pre>
+				<a id="goForIt" class="btn btn-primary" href="#">Run</a>
+			</div>
+			<div class="tab-pane" id="results">
+				<pre class="well">No results. First run CompressGV.</pre>
+			</div>
+		</div>
+	</div>
+	
+</div>
+
+				</div>
+			</div>
+		</div>
+
+		<script src="http://code.jquery.com/jquery.js"></script>
+		<script src="jquery.ba-hashchange.min.js"></script>
+		<script src="CompressGV.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+	</body>
+</html>
