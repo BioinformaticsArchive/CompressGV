@@ -8,20 +8,20 @@
 
 Copyright 2013 Arran Schlosberg.
 
-This file is part of https://github.com/aschlosberg/SNP (SNP)
+This file is part of https://github.com/aschlosberg/CompressGV (CompressGV)
 
-    SNP is free software: you can redistribute it and/or modify
+    CompressGV is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    SNP is distributed in the hope that it will be useful,
+    CompressGV is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with SNP. If not, see <http://www.gnu.org/licenses/>.
+    along with CompressGV. If not, see <http://www.gnu.org/licenses/>.
 
 ---------------------------------------------------------------------------------------
  
@@ -62,8 +62,8 @@ typedef struct {
 	aa_t wt;
 	aa_t variant;
 	aa_t *msa;
-	double gv;
 	double complexity;
+	double gs, gv, adjGV;
 } variant_t;
 
 typedef struct {
@@ -280,6 +280,27 @@ double complexityRatio(aa_t *acids, unsigned int n){
 	if (ret != Z_OK)
 	return ret;
 
+	// MSA position can contain non AA encoding (hypen / X) - clear before compressing
+	int i, len=0;
+	for(i=0; i<n; i++){
+		if(acids[i]!='-' && acids[i]!='X'){
+			len++;
+		}
+	}
+
+	char nonHyphen[len];
+	int j = 0;
+	for(i=0; i<n; i++){
+		if(acids[i]!='-' && acids[i]!='X'){
+			nonHyphen[j]=acids[i];
+			j++;
+		}
+	}
+
+	n = j;
+	acids = nonHyphen;
+
+	// Compress
 	do {
 		// modified from the original to use the AAs instead of a source file
 		remain = n-inPos;
@@ -316,6 +337,7 @@ int getVariants(FILE *fp, variant_t** varsPtr, msa_t *msa, bool canBeEmpty, char
 #if GRANTHAM_K_ONLY==1
 	double coeff[4];
 	granthamCoefficients(&(coeff[0]));
+	aa_t snp[2];
 #endif
 
 	char c;
@@ -383,12 +405,17 @@ int getVariants(FILE *fp, variant_t** varsPtr, msa_t *msa, bool canBeEmpty, char
 					currVar->msa[s] = msa->acids[s*msa->length + currVar->pos];
 				}
 
+				currVar->variant = c;
+
 				currVar->complexity = complexityRatio(currVar->msa, msa->no_of_species);
 #if GRANTHAM_K_ONLY==1
+				snp[0] = currVar->wt;
+				snp[1] = currVar->variant;
+				currVar->gs = gv(&(snp[0]), 2, &(coeff[0]));
 				currVar->gv = gv(currVar->msa, msa->no_of_species, &(coeff[0]));
+				currVar->adjGV = currVar->gv * pow(currVar->complexity, 2.45);
 #endif
 
-				currVar->variant = c;
 				state = STATE_VAR;
 			}
 			else {
@@ -420,11 +447,13 @@ int getVariants(FILE *fp, variant_t** varsPtr, msa_t *msa, bool canBeEmpty, char
 double granthamMetric(variant_t *var, double *coeff){
 	aa_t snp[2] = {var->wt, var->variant};
 #if GRANTHAM_K_ONLY==1
-#define GV_VAL var->gv
+	#define GS_VAL var->gs
+	#define GV_VAL var->adjGV
 #else
-#define GV_VAL gv(var->msa, granthamMSA.no_of_species, coeff)
+	#define GS_VAL gv(&(snp[0]), 2, coeff)
+	#define GV_VAL gv(var->msa, granthamMSA.no_of_species, coeff) * pow(var->complexity, 2.45)
 #endif
-	return gv(&(snp[0]), 2, coeff) * pow(coeff[3], -GV_VAL); // * pow(var->complexity, 1/coeff[4]);
+	return GS_VAL * pow(coeff[3], -GV_VAL);
 }
 
 // determine clustering and return either:
@@ -465,7 +494,7 @@ double granthamCluster(double *coeff, int returnCutoff, double *returnAll){
 
 #define GRANTHAM_K_SCALE (GRANTHAM_K_MAX-1)*c[3]/GRANTHAM_PSO_SCALE+1
 //#define GRANTHAM_KOLMOG_SCALE (GRANTHAM_KOLMOG_MAX-1)*c[4]/GRANTHAM_PSO_SCALE+1
-#define GRANTHAM_KOLMOG_SCALE 100*c[4]/GRANTHAM_PSO_SCALE
+#define GRANTHAM_KOLMOG_SCALE c[4]/GRANTHAM_PSO_SCALE
 
 #if GRANTHAM_K_ONLY==1
 #define GRANTHAM_SCALED {1.833, 0.1018, 0.000399, GRANTHAM_K_SCALE, GRANTHAM_KOLMOG_SCALE}
