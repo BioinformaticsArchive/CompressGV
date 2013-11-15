@@ -161,8 +161,16 @@ $(function(){
 			
 			var limits = [[4,novel-4],[novel,lines.length-5]];
 			var ids = ['cross','novel'];
+			var headings = ['Cross-validation', 'Novel nsSNPs'];
 			for(var lim in limits){
 				var table = $('#resultsTemplate').clone().attr('id', ids[lim]);
+				$('#resultsTemplate').after(
+					table.show()
+				);
+				table.before(
+					$('<h3>').html(headings[lim])
+				)
+
 				var tbody = table.find('>tbody');
 				for(var i=limits[lim][0]; i<limits[lim][1]; i++){
 					var tr = $('<tr>');
@@ -171,10 +179,43 @@ $(function(){
 					});
 					tbody.append(tr);
 				}
+
 				if(lim==0){
-					tbody.children().each(function(i,el){tbody.prepend(el)}); //reverse the order as the results are showing up reversed
+					//calculate the AUC
+					var gm = [];
+					tbody.children().each(function(i,el){
+						el = $(el);
+						var cl;
+						switch(el.children().eq(1).html()){
+							case 'TN': case 'FP':
+								cl = 'N';
+								break;
+							case 'TP': case 'FN':
+								cl = 'P';
+								break;
+						}
+						gm.push([cl, parseFloat(el.children().eq(5).html())]);
+						tbody.prepend(el); //while we're at it... reverse the order as the results are showing up reversed
+					});
+					
+					gm.sort(function(a, b){ return a[1]-b[1]; });
+					var n = {N : 0, P : 0, product : 0};
+					var beat = {N : 0, P : 0, sum : 0};
+					for(var i=0; i<gm.length; i++){
+						n[gm[i][0]]++;
+						for(j=i+1; j<gm.length; j++){
+							if(gm[i][0]!=gm[j][0]){
+								beat[gm[i][0]]++;
+							}
+						}
+					}
+					
+					n.product = n.N * n.P;
+					beat.sum = beat.N + beat.P
+					if(n.product==beat.sum){ //just checking :)
+						table.before($('<h4>').html('ROC AUC: '+Math.round(beat.N / beat.sum*10000)/10000));
+					}
 				}
-				$('#resultsTemplate').after(table.show());
 			}
 				
 			$('#results>pre').html(lines[4]+'\n'+lines[novel]);
