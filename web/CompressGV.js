@@ -21,6 +21,7 @@ $(function(){
 	$('#container>div').not(':first').hide();
 	$('#nav>li:first').addClass('active');
 	$('#year').html((new Date()).getFullYear());
+	$('#resultsTemplate').hide();
 	
 	var toSection = function(section){
 		var link = $('#nav>li>a[href=#'+section+']');
@@ -62,6 +63,7 @@ $(function(){
 		.each(function(){
 			var copy = $('<a href="#">Copy example to input</a>')
 								.addClass('pull-right')
+								.addClass('copy-example')
 								.click(function(){
 									$(this).parent().parent().find('textarea').val(
 										$(this).parent().next('pre').html().replace(/&gt;/g, '>')
@@ -145,10 +147,48 @@ $(function(){
 			$('#goForIt')
 				.removeClass('disabled')
 				.html('Run');
-			$('#results>pre').html(data.response);
+				
+			var lines = data.response.split('\n');
+			var novel;
+			for(var i=4; i<lines.length; i++){
+				if(lines[i].substr(0,3)=='---'){
+					novel = i+4;
+					break;
+				}
+			}
+			
+			$('#results>table').not('#resultsTemplate').remove();
+			
+			var limits = [[4,novel-4],[novel,lines.length-5]];
+			var ids = ['cross','novel'];
+			for(var lim in limits){
+				var table = $('#resultsTemplate').clone().attr('id', ids[lim]);
+				var tbody = table.find('>tbody');
+				for(var i=limits[lim][0]; i<limits[lim][1]; i++){
+					var tr = $('<tr>');
+					var vData = $.map(lines[i].split(/\s+/), function(v){
+						return tr.append($('<td>').html(v));
+					});
+					tbody.append(tr);
+				}
+				if(lim==0){
+					tbody.children().each(function(i,el){tbody.prepend(el)}); //reverse the order as the results are showing up reversed
+				}
+				$('#resultsTemplate').after(table.show());
+			}
+				
+			$('#results>pre').html(lines[4]+'\n'+lines[novel]);
 			$('#resultLink').tab('show');
 		}, 'json');
 
+		return false;
+	});
+	
+	$('#demo').click(function(){
+		location.href = "#use";
+		$('a.copy-example').click();
+		$('#runLink').click();
+		$('#goForIt').click();
 		return false;
 	});
 	
