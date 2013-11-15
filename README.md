@@ -1,3 +1,5 @@
+A [browser-based interface](http://compressgv.arranschlosberg.com) is also available.
+
 **Background:** Improvements in speed and cost of genome sequencing are resulting in increasing numbers of novel non-synonymous single nucleotide polymorphisms (nsSNPs) in genes known to be associated with disease. The large number of nsSNPs makes laboratory-based classification infeasible and familial co-segregation with disease is not always possible. *In-silico* methods for classification or triage are thus utilised. A popular tool based on multiple-species sequence alignments (MSAs), Align-GVGD, has been shown to underestimate deleterious effects, particularly as sequence numbers increase.
 
 **Results:** We utilised the DEFLATE compression algorithm to account for expected variation across a number of species. With the adjusted Grantham measure we derived a means of quantitatively clustering known neutral and deleterious nsSNPs from the same gene; this was then used to assign novel variants to the most appropriate cluster as a means of binary classification. Scaling of clusters allows for inter-gene comparison of variants through a single pathogenecity score.

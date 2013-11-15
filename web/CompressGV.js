@@ -1,6 +1,26 @@
+/*
+Copyright 2013 Arran Schlosberg.
+
+This file is part of https://github.com/aschlosberg/CompressGV (CompressGV)
+
+    CompressGV is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CompressGV is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CompressGV. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 $(function(){
 	$('#container>div').not(':first').hide();
 	$('#nav>li:first').addClass('active');
+	$('#year').html((new Date()).getFullYear());
 	
 	var toSection = function(section){
 		var link = $('#nav>li>a[href=#'+section+']');
@@ -16,7 +36,11 @@ $(function(){
 	}
 	
 	var toHash = function(){
-		var hash = location.href.substring(location.href.indexOf("#")+1);
+		var idx = location.href.indexOf("#");
+		if(idx==-1){
+			return false;
+		}
+		var hash = location.href.substring(idx+1);
 		toSection(hash);
 	}
 	
