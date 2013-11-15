@@ -22,6 +22,16 @@ $(function(){
 	$('#nav>li:first').addClass('active');
 	$('#year').html((new Date()).getFullYear());
 	$('#resultsTemplate').hide();
+
+	//will only work if prepare.sh has been run
+	var ver = $('body').attr('data-version');
+	if(ver!='master'){	
+		$.getJSON('./uptodate.php', function(data){
+			if(ver!=data.v){
+				location.reload(true);
+			}
+		});
+	}
 	
 	var toSection = function(section){
 		var link = $('#nav>li>a[href=#'+section+']');
