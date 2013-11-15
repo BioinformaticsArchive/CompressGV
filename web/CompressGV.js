@@ -167,7 +167,7 @@ $(function(){
 				}
 			}
 			
-			$('#results>table').not('#resultsTemplate').remove();
+			$('#results>*').not('#resultsTemplate').remove();
 			
 			var limits = [[4,novel-4],[novel,lines.length-5]];
 			var ids = ['cross','novel'];
