@@ -34,4 +34,8 @@ if(strpos($_POST['msa'], ">")!==false){
 
 $exec = "./grantham ".implode(" ", $files);
 echo json_encode(array("response" => `$exec 2>&1`));
+
+foreach($files as $f){
+	unlink($f);
+}
 ?>
