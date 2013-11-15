@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sed -i "s|GIT-COMMIT-HASH|`git log --pretty=format:'%h' -n 1`|" index.html;
+
 jsMD5=`md5sum CompressGV.js | awk '{print $1}'`;
 find -maxdepth 1 -iname 'CompressGV_md5_*.js' | xargs -r rm;
 cp CompressGV.js "CompressGV_md5_${jsMD5}.js";
