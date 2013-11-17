@@ -39,6 +39,7 @@
 						<li><a href="#" id="demo"><i class="icon-play-circle"></i>Run Demo</a></li>
 						<li class="divider"></li>
 						<li><a href="#download"><i class="icon-download-alt"></i> Download Source</a></li>
+						<li><a href="#help"><i class="icon-info-sign"></i> Help</a></li>
 					</ul>
 					</div>
 				</div>
@@ -366,6 +367,62 @@ I36V
 		<h1>Download Source</h1>
 	</div>
 	<p>CompressGV is released under the GNU GPL v3. Source code (including this web interface) is available from the <a href="https://github.com/aschlosberg/CompressGV">GitHub repository</a>.</p>
+</div>
+
+<div>
+	<a name="help"></a>
+	<div class="page-header">
+		<h1>Help</h1>
+	</div>
+	
+<div class="accordion" id="questions">
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="#questions" href="#interpret">
+				How do I interpret results?
+			</a>
+		</div>
+		<div id="interpret" class="accordion-body collapse">
+			<div class="accordion-inner">
+				CompressGV assesses the influence of MSA diversity on phenotype prediction using the deleterious and neutral nsSNPs provided; they are used to search for an optimal weighting for the diversity when calculating GM scores.
+				
+				<dl class="dl-horizontal">
+					<dt>Classification</dt>
+					<dd>Novel nsSNPs will be classified as deleterious (D) or neutral (N). nsSNPs with a known classification (i.e. those used to determine the diversity weighting) are tested in a leave-one-out cross-validation and classified as true (T) or false (F) positives (P) and negatives (N) in order to calculate the <a href="http://en.wikipedia.org/wiki/Receiver_operating_characteristic#Area_under_the_curve">ROC area under the curve</a>.</dd>
+					<dt>GM / C</dt>
+					<dd>GM is the Grantham Metric which is the focus of the CompressGV classifier. GM correlates positively with the probability of deleterious classification, although not in a linear fashion. C is the theoretically optimal cut-off for classification; a GM greater than C should be considered as likely deleterious and vice versa.</dd>
+					<dt>Normalised GM</dt>
+					<dd>As each gene and set of known deleterious / neutral variants will result in a different value of C it is not possible to directly compare GMs from different classifications. The normalised GM is transformed based on C such that it always has a cut-off of 0 and still correlates positively with the probability of deleterious classification.</dd>
+				</dl>
+				
+				Work is under way to model the probability distribution of the Normalised GM. A <a href="./animation/index.html">graphical demonstration of the GM</a> is available although it does not incorporate the data compression component.
+			</div>
+		</div>
+	</div>
+	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="#questions" href="#api">
+				Is there an API? How do I access this interface programmatically?
+			</a>
+		</div>
+		<div id="api" class="accordion-body collapse in">
+			<div class="accordion-inner">
+				Submit an HTTP POST request to <a id="runPHP" href="./run.php?format=text"><code>run.php?format=[text|json]</code></a> with the following parameters. Format examples can be found by viewing the relevant input sections in this interface.
+				<dl class="dl-horizontal">
+					<dt>msa</dt>
+					<dd>Sequence alignment in FASTA or single-line format</dd>
+					<dt>del</dt>
+					<dd>Deleterious nsSNPs each on a new line (minimum 2)</dd>
+					<dt>neut</dt>
+					<dd>Neutral nsSNPs each on a new line (minimum 2)</dd>
+					<dt>novel</dt>
+					<dd>nsSNPs for classification each on a new line</dd>
+				</dl>
+			</div>
+		</div>
+	</div>
+</div>
+	
 </div>
 
 				</div>
