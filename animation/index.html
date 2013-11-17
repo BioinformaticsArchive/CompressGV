@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>CompressGV - graphical representation of the Grantham Metric</title>
+		<link rel="stylesheet" type="text/css" href="./css/jquery-ui.css" />
+		<script type="application/javascript" src="./js/jquery.min.js"></script>
+		<script type="application/javascript" src="./js/jquery-ui.min.js"></script>
+		<script src="./js/processing.js"></script>
+		<script src="./js/flot/jquery.flot.js"></script> 
+
+		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="./js/flot/excanvas.min.js"></script><![endif]-->
+	</head>
+	<body style="font-family: Sans;">
+
+<script type="text/processing" data-processing-target="grantham">
+float[][] p = new float[20][3];
+p[0] = {0, 8.1, 31};
+p[1] = {2.75, 5.5, 55};
+p[2] = {1.38, 13, 54};
+p[3] = {0.92, 12.3, 83};
+p[4] = {0, 5.2, 132};
+p[5] = {0.74, 9, 3};
+p[6] = {0.58, 10.4, 96};
+p[7] = {0, 5.2, 111};
+p[8] = {0.33, 11.3, 119};
+p[9] = {0, 4.9, 111};
+p[10] = {0, 5.7, 105};
+p[11] = {1.33, 11.6, 56};
+p[12] = {0.39, 8, 32.5};
+p[13] = {0.89, 10.5, 85};
+p[14] = {0.65, 10.5, 124};
+p[15] = {1.42, 9.2, 32};
+p[16] = {0.71, 8.6, 61};
+p[17] = {0, 5.9, 84};
+p[18] = {0.13, 5.4, 170};
+p[19] = {0.2, 6.2, 136};
+
+bool[] inGV = new bool[20];
+
+float[] avg = new float[];
+avg = {0, 0, 0};
+for(int i=0; i<20; i++){
+	inGV[i] = false;
+	for(int j=0; j<3; j++){
+		p[i][j] *= pow(10, 2-j);
+		avg[j] += p[i][j];
+	}
+}
+
+for(int j=0; j<3; j++){
+	avg[j] /= 20;
+	for(int i=0; i<20; i++){
+		p[i][j] -= avg[j];
+	}
+}
+
+void setup()
+{
+	size(400, 400, P3D);
+}
+
+float camDist = 200;
+float yAdj = 1;
+bool angleInc = true;
+float angle = 0;
+
+int w = -1;
+int v = -1;
+int[] msa = {};
+
+void draw(){
+	background(255);
+	angle += 0.2 * angleInc;
+	camera(
+		camDist*cos(radians(angle)), camDist*yAdj, camDist*sin(radians(angle)),
+		0, 0, 0,
+		0.0, -1.0, 0.0
+	);
+	drawAxes();
+	drawProperties();
+	GS();
+	GV();
+}
+
+void keyPressed(){
+	switch(keyCode){
+		case 33: case 34: //PG UP/DOWN
+			camDist += (keyCode - 33.5)*10;
+			break;
+		case 38: case 40: //ARROW UP/DOWN
+			yAdj += (39 - keyCode)/20;
+			break;
+		case 37: case 39: //R/L
+			angle += !angleInc * (keyCode-38);
+			break;
+		case 32: //SPACE
+			angleInc = !angleInc;
+			break;
+		default:
+//			println(keyCode);
+	}
+}
+
+void drawAxes(){
+	stroke(210);
+	strokeWeight(1);
+	line(-100, 0, 0, 100, 0, 0);
+	line(0, -100, 0, 0, 100, 0);
+	line(0, 0, -100, 0, 0, 100);
+}
+
+void drawProperties(){
+	strokeWeight(1);
+	for(int i=0; i<20; i++){
+		if(i==w) stroke(0, 255, 0);
+		else if(i==v) stroke(255, 0, 0);
+		else if(inGV[i]) stroke(0, 0, 255);
+		else stroke(128);
+		pushMatrix();
+		translate(p[i][0], p[i][1], p[i][2]);
+		sphere(3);
+		popMatrix();
+	}
+}
+
+float GS(){
+	if(w<0 || v<0) return -1;
+	stroke(255, 0, 0);
+	strokeWeight(2);
+	line(p[w][0], p[w][1], p[w][2], p[v][0], p[v][1], p[v][2]);
+	var d = 0;
+	for(j=0; j<3; j++){
+		d += pow(p[w][j] - p[v][j], 2);
+	}
+	return sqrt(d);
+}
+
+void GV(){
+	if(!msa || !msa.length) return -1;
+	float[] currP;
+	float[] pMin = new float[3] {999,999,999};
+	float[] pMax = new float[3] {-999,-999,-999};
+	for(int i=0; i<msa.length; i++){
+		currP = p[msa[i]];
+		for(int j=0; j<3; j++){
+			pMin[j] = min(pMin[j], currP[j]);
+			pMax[j] = max(pMax[j], currP[j]);
+		}
+	}
+	stroke(172);
+	strokeWeight(1);
+	noFill();
+	pushMatrix();
+	translate((pMax[0]+pMin[0])/2, (pMax[1]+pMin[1])/2, (pMax[2]+pMin[2])/2);
+	box(pMax[0]-pMin[0], pMax[1]-pMin[1], pMax[2]-pMin[2]);
+	popMatrix();
+	stroke(0, 0, 255);
+	strokeWeight(2);
+	line(pMin[0], pMin[1], pMin[2], pMax[0], pMax[1], pMax[2]);
+	var d = 0;
+	for(j=0; j<3; j++){
+		d += pow(pMax[j] - pMin[j], 2);
+	}
+	return sqrt(d);
+}
+
+void setW(val){
+	w = val;
+	return GS();
+}
+
+void setV(val){
+	v = val;
+	return GS();
+}
+
+void setMSA(val){
+	msa = val;
+	for(int i=0; i<20; i++){
+		inGV[i] = false;
+	}
+	for(int i=0; i<msa.length; i++){
+		inGV[msa[i]] = true;
+	}
+	return GV();
+}
+</script>
+
+<script type="application/javascript">
+$(function(){
+	$('#jqVer').html($.fn.jquery);
+	$('#jquVer').html($.ui.version);
+	$('#flotVer').html($.plot.version);
+
+	var aa = ["A","C","D","E","F","G","H","I","K","L","M","N","P","Q","R","S","T","V","W","Y"];
+	for(var i=0; i<aa.length; i++){
+		var curr = $('<option>').html(aa[i]).val(i);
+		$('#w, #v, #msa').append(curr);
+	}
+	
+	$('#w, #v')
+		.prepend($('<option>').attr('disabled', 'disabled').attr('selected', 'selected').val(-1))
+		.change(function(){
+			var p = Processing.getInstanceById('grantham');
+			var fn = 'set'+$(this).attr('id').toUpperCase();
+			p[fn]($(this).val());
+			doPlot();
+		});
+		
+	$('#msa').change(function(){
+		var p = Processing.getInstanceById('grantham');
+		p.setMSA($(this).val());
+		doPlot();
+	});
+	
+	$('#k').slider({
+		orientation: "vertical",
+		min: 1,
+		max: 500,
+		value: 200,
+		change: doPlot,
+		slide: doPlot
+	});
+	
+	doPlot();
+});
+
+function doPlot(){
+	var k = ($('#k').slider('value')-1)/250+1;
+	var gvScale = 100;
+	
+	var p = Processing.getInstanceById('grantham');
+	if(p){
+		gv = p.GV();
+		gs = p.GS();
+		var kGV = gv>0 ? Math.pow(k, -gv/gvScale) : 0;
+		var gsFrom = (gv>gs ? gv-gs : gv);
+		var gsTo = (gv>gs ? gv : gv+gs);
+		markings = gs>0 && gv>0 ? [ { xaxis: { from: gsFrom, to: gsTo }, yaxis: { from: 0, to: kGV }, color: '#eee' }] : [];
+		gs = gs>0 && gv>0 ? [[gsFrom, kGV], [gsTo, kGV]] : [];
+		gv = gv>0 ? [[0,0], [gv, 0], [gv, kGV]] : [];
+	}
+	else {
+		gv = [];
+		gs = [];
+		markings = [];
+	}
+	
+	var negExp = [];
+	var maxX = 375;
+	for(var i=0; i<=maxX; i+=5){
+		negExp.push([i, Math.pow(k, -i/gvScale)]);
+	}
+	$('#flot').plot([negExp, gv, gs], {
+		xaxis: {
+			show: false,
+			min: 0,
+			max: maxX
+		},
+		yaxis: {
+			show: false,
+			min: 0,
+			max: 1
+		},
+		grid: {
+			markings: markings
+		}
+	});
+}
+</script>
+
+<style>
+.left {
+	float: left;
+	margin-right: 30px;
+}
+</style>
+
+<div class="left">
+	<canvas id="grantham"></canvas>
+	<select id="w"></select>
+	<select id="v"></select>
+	<select id="msa" multiple="multiple" size="20"></select>
+</div>
+<div id="k" class="left" style="height: 400px;"></div>
+<div id="flot" class="left" style="width: 400px; height: 400px;"></div>
+
+<div style="float: none; clear: both; padding: 30px 0px;">
+	<ol style="font-size: 0.8em; line-height: 1.6em;">
+		<li>The rotating animation represents the properties <em>c</em>, <em>p</em>, and <em>v</em> (Eqn. 1) of all 20 amino acids.</li>
+		<li>Select the wild-type amino acid from the first drop-down; the corresponding point will be highlighted in green.</li>
+		<li>Select the variant amino acid from the second drop-down; the corresponding point will be highlighted in red. <em>GS</em> (Eqn. 1) is demonstrated by a red line between the two points.</li>
+		<li>Select all amino acids present in the MSA at the respective position. The bounding rectangular prism will be shown including all corresponding points (highlighted in blue), with <em>GV</em> (Eqn. 2) demonstrated by a blue line.</li>
+		<li>Slide the element up and down to modify <em>k</em> (Eqn. 4). The blue line (<em>GV</em>) from the animation is mapped to the horizontal axis and then transformed to <em>k<sup>-GV</sup></em> along the plot; the first dimension of the rectangle. The red line (<em>GS</em>) is mapped onto the plot as the other dimension; the <em>GM</em> (not adjusted by compression) is thus represented by the shaded area.</li>
+	</ol>
+</div>
+
+<small>
+	Browser compatibility: see requirements for
+	<a href="http://jquery.com/">jQuery <span id="jqVer"></span></a>,
+	<a href="http://jquery.com/">jQuery UI <span id="jquVer"></span></a>,
+	<a href="http://processingjs.org/">Processing.js 1.4.1</a> and
+	<a href="http://www.flotcharts.org/">Flot <span id="flotVer"></span></a>.
+</small>
+
+	</body>
+</html>
