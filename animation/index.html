@@ -10,7 +10,7 @@
 
 		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="./js/flot/excanvas.min.js"></script><![endif]-->
 	</head>
-	<body style="font-family: Sans;">
+	<body style="font-family: Sans; font-size: 0.8em; line-height: 1.6em;">
 
 <script type="text/processing" data-processing-target="grantham">
 float[][] p = new float[20][3];
@@ -286,7 +286,7 @@ function doPlot(){
 <div id="flot" class="left" style="width: 400px; height: 400px;"></div>
 
 <div style="float: none; clear: both; padding: 30px 0px;">
-	<ol style="font-size: 0.8em; line-height: 1.6em;">
+	<ol>
 		<li>The rotating animation represents the properties <em>c</em>, <em>p</em>, and <em>v</em> (Eqn. 1) of all 20 amino acids.</li>
 		<li>Select the wild-type amino acid from the first drop-down; the corresponding point will be highlighted in green.</li>
 		<li>Select the variant amino acid from the second drop-down; the corresponding point will be highlighted in red. <em>GS</em> (Eqn. 1) is demonstrated by a red line between the two points.</li>
@@ -295,13 +295,23 @@ function doPlot(){
 	</ol>
 </div>
 
-<small>
+<p>
+	Click on the animation to control the view:
+	<ul>
+		<li>Space-bar starts/stops automatic rotation</li>
+		<li>Left / right arrows to manually rotate</li>
+		<li>Up / down arrow to change camera height</li>
+		<li>PgUp / PgDn to zoom in and out respectively</li>
+	</ul>
+</p>
+
+<p>
 	Browser compatibility: see requirements for
 	<a href="http://jquery.com/">jQuery <span id="jqVer"></span></a>,
-	<a href="http://jquery.com/">jQuery UI <span id="jquVer"></span></a>,
+	<a href="http://jqueryui.com/">jQuery UI <span id="jquVer"></span></a>,
 	<a href="http://processingjs.org/">Processing.js 1.4.1</a> and
 	<a href="http://www.flotcharts.org/">Flot <span id="flotVer"></span></a>.
-</small>
+</p>
 
 	</body>
 </html>
