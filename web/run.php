@@ -40,6 +40,7 @@ if(!isset($_GET['format'])){
 }
 switch(strtolower($_GET['format'])){
 	case "text":
+		header("Content-type: text/plain");
 		echo $output;
 		break;
 	case "json": default:

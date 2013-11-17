@@ -22,6 +22,7 @@ $(function(){
 	$('#nav>li:first').addClass('active');
 	$('#year').html((new Date()).getFullYear());
 	$('#resultsTemplate').hide();
+	$('#runPHP').click(false);
 
 	//will only work if prepare.sh has been run
 	var ver = $('body').attr('data-version');

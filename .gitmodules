@@ -1,6 +1,6 @@
 [submodule "pso"]
 	path = pso
 	url = git@github.com:aschlosberg/pso.git
-[submodule "animation/js/flot"]
-	path = animation/js/flot
+[submodule "web/animation/js/flot"]
+	path = web/animation/js/flot
 	url = https://github.com/flot/flot.git
