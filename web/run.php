@@ -33,7 +33,19 @@ if(strpos($_POST['msa'], ">")!==false){
 }
 
 $exec = "./grantham ".implode(" ", $files);
-echo json_encode(array("response" => `$exec 2>&1`));
+$output = `$exec 2>&1`;
+
+if(!isset($_GET['format'])){
+	$_GET['format'] = "json";
+}
+switch(strtolower($_GET['format'])){
+	case "text":
+		echo $output;
+		break;
+	case "json": default:
+		echo json_encode(array("response" => $output));
+		break;
+}
 
 foreach($files as $f){
 	unlink($f);
