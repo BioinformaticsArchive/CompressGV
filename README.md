@@ -14,7 +14,7 @@
 
 A server running CompressGV is made available for anonymous usage; input data is destroyed immediately after classification and output is not stored. A [browser-based interface](http://compressgv.arranschlosberg.com) is available for standard users. Low-level [usage directly over HTTP](http://compressgv.arranschlosberg.com/#help) is encouraged for personal use only.
 
-##<a id="requirements"></a>Requirements
+##<a id="req"></a>Requirements
 
 Versions in brackets refer to those used in development; earlier versions may be compatible but have not been tested.
 
