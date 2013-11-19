@@ -1,8 +1,8 @@
 #CompressGV
 
-[Abstract](#abstract) | [Browser & HTTP Interface](#browser) | [Requirements](#req) | [Installation](#install)
+[Abstract](#abstract) | [Browser & HTTP Interface](#browser--http-interface) | [Requirements](#requirements) | [Installation](#installation)
 
-##<a id="abstract"></a>Abstract
+##Abstract
 
 **Background:** Improvements in speed and cost of genome sequencing are resulting in increasing numbers of novel non-synonymous single nucleotide polymorphisms (nsSNPs) in genes known to be associated with disease. The large number of nsSNPs makes laboratory-based classification infeasible and familial co-segregation with disease is not always possible. *In-silico* methods for classification or triage are thus utilised. A popular tool based on multiple-species sequence alignments (MSAs), Align-GVGD, has been shown to underestimate deleterious effects, particularly as sequence numbers increase.
 
@@ -10,11 +10,11 @@
 
 **Conclusions:** The approach improves upon the classification accuracy of Align-GVGD while correcting for sensitivity to large MSAs.
 
-##<a id="browser"></a>Browser & HTTP Interface
+##Browser & HTTP Interface
 
 A server running CompressGV is made available for anonymous usage; input data is destroyed immediately after classification and output is not stored. A [browser-based interface](http://compressgv.arranschlosberg.com) is available for standard users. Low-level [usage directly over HTTP](http://compressgv.arranschlosberg.com/#help) is encouraged for personal use only.
 
-##<a id="req"></a>Requirements
+##Requirements
 
 Versions in brackets refer to those used in development; earlier versions may be compatible but have not been tested.
 
@@ -22,7 +22,7 @@ Versions in brackets refer to those used in development; earlier versions may be
 * [zlib](http://www.zlib.net/) (1.2.8)
 * [PSO](https://github.com/aschlosberg/pso) implementation ([kkentzo/pso 5a992b312e](https://github.com/kkentzo/pso/commit/5a992b312e21c421b363ed95cf5b0f7dede9890a))
 
-##<a id="install"></a>Installation
+##Installation
 
 A sample Linux makefile is included.
 
