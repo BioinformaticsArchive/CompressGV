@@ -1,4 +1,4 @@
-if [ ! -f ../Debug/grantham ]
+if [ ! -f ../bin/grantham ]
 then
 	echo "Compiled binary does not exist; attempting to create before running demo.";
 	currDir=`pwd`;
@@ -8,4 +8,4 @@ then
 	echo "Binary compiled; running demo.";
 fi
 
-../Debug/grantham ./aln ./del ./neut ./novel
+../bin/grantham ./aln ./del ./neut ./novel
