@@ -15,6 +15,13 @@ lbl <- c(rep(1,length(pos)), rep(0,length(neg)))
 
 pred <- prediction(all, lbl)
 
+length(pos) + length(neg)
+length(pos)
+length(neg)
+tp
+fn
+fp
+tn
 performance(pred, measure="auc")@y.values[[1]]
 sen
 spec

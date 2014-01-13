@@ -63,6 +63,21 @@ else
 	echo -e "Extracted.\r";
 fi
 
+echo "Removing known HumVar errors from extracted variants - generally WT AA does not match FASTA";
+for g in $(cat ../../humvar_errors | awk '{print $1}' | sort | uniq);
+do
+	for v in $(cat ../../humvar_errors | awk -v g=$g '$1==g {print $2}');
+	do
+		sed -i "/$v/d" deleterious/$g;
+		sed -i "/$v/d" neutral/$g;
+	done
+	if [ `wc -l < deleterious/$g` -lt 3 ] || [ `wc -l < neutral/$g` -lt 3 ]
+	then
+		echo "$g no longer has at least 3 variants in both sets; removing from test data";
+		sed -i "/$g/d" ./toTest.log;
+	fi
+done
+
 cd ..;
 echo -n "Checking for precomputed alignments... ";
 if [ $TESTMODE -eq 1 ]
@@ -178,4 +193,4 @@ cat TP FN > P;
 cat TN FP > N;
 cd ../../;
 
-R --vanilla < ./performace.R 2>/dev/null | tail -n 7
+R --vanilla < ./performace.R 2>/dev/null | tail -n 22

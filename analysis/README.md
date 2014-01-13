@@ -7,3 +7,7 @@
 - md5sum
 - clustalo
 - R + ROCR library
+
+## Notes
+
+- The file *humvar_errors* contains a list of proteins / variants that appear to be errors in the HumVar dataset as the wild-type in the variant does not match that in the Uniprot sequence. Cursory analysis appears to show inversion of the wild-type / variant amino acids in the HumVar data
