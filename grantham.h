@@ -413,7 +413,7 @@ int getVariants(FILE *fp, variant_t** varsPtr, msa_t *msa, bool canBeEmpty, char
 				snp[1] = currVar->variant;
 				currVar->gs = gv(&(snp[0]), 2, &(coeff[0]));
 				currVar->gv = gv(currVar->msa, msa->no_of_species, &(coeff[0]));
-				currVar->adjGV = currVar->gv * pow(currVar->complexity, 2.45);
+				currVar->adjGV = currVar->gv * pow(currVar->complexity, 2.50);
 #endif
 
 				state = STATE_VAR;
@@ -451,7 +451,7 @@ double granthamMetric(variant_t *var, double *coeff){
 	#define GV_VAL var->adjGV
 #else
 	#define GS_VAL gv(&(snp[0]), 2, coeff)
-	#define GV_VAL gv(var->msa, granthamMSA.no_of_species, coeff) * pow(var->complexity, 2.45)
+	#define GV_VAL gv(var->msa, granthamMSA.no_of_species, coeff) * pow(var->complexity, options.r)
 #endif
 	return GS_VAL * pow(coeff[3], -GV_VAL);
 }
