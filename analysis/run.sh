@@ -172,8 +172,8 @@ i=0
 e=0
 while [ $i -lt $n ] 
 do
-	i=`ls data/outcome | fgrep verbose | wc -l`
-	e=`ls data/outcome | fgrep verbose.err | wc -l`
+	i=`ls data/outcome | fgrep -v tmp | fgrep verbose | wc -l`
+	e=`ls data/outcome | fgrep -v tmp | fgrep verbose.err | wc -l`
 	echo -ne "$i of $n (${e} errors)\r";
 done
 
