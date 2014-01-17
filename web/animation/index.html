@@ -13,6 +13,8 @@
 	<body style="font-family: Sans; font-size: 0.8em; line-height: 1.6em;">
 
 <script type="text/processing" data-processing-target="grantham">
+bool setupOK = false;
+
 float[][] p = new float[20][3];
 p[0] = {0, 8.1, 31};
 p[1] = {2.75, 5.5, 55};
@@ -54,9 +56,19 @@ for(int j=0; j<3; j++){
 	}
 }
 
+bool isSetupOK(){
+	return setupOK;
+}
+
 void setup()
 {
-	size(400, 400, P3D);
+	try {
+		size(400, 400, P3D);
+		setupOK = true;
+	}
+	catch(e){
+		alert('Can not run animation: '+e);
+	}
 }
 
 float camDist = 200;
@@ -191,6 +203,13 @@ $(function(){
 	$('#jqVer').html($.fn.jquery);
 	$('#jquVer').html($.ui.version);
 	$('#flotVer').html($.plot.version);
+	
+	try {
+		var p = Processing.getInstanceById('grantham');
+		if(!p.isSetupOK()){
+			return;
+		}
+	} catch(e){ return; }
 
 	var aa = ["A","C","D","E","F","G","H","I","K","L","M","N","P","Q","R","S","T","V","W","Y"];
 	for(var i=0; i<aa.length; i++){
@@ -306,7 +325,7 @@ function doPlot(){
 </p>
 
 <p>
-	Browser compatibility: see requirements for
+	Browser compatibility: WebGL support + see requirements for
 	<a href="http://jquery.com/">jQuery <span id="jqVer"></span></a>,
 	<a href="http://jqueryui.com/">jQuery UI <span id="jquVer"></span></a>,
 	<a href="http://processingjs.org/">Processing.js 1.4.1</a> and
