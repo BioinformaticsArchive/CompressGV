@@ -23,7 +23,7 @@
 			<div class="navbar">
 				<div class="navbar-inner navbar-fixed-bottom">
 					<ul class="nav">
-						<li class="navbar-text">Revision: GIT-COMMIT-HASH &copy <span id="year">2013</span> Arran Schlosberg</li>
+						<li class="navbar-text">Revision: GIT-COMMIT-HASH &copy <span id="year">2013</span> <a href="http://arranschlosberg.com" style="display: inline;">Arran Schlosberg</a></li>
 						<li class="divider-vertical"><a href="https://raw.github.com/aschlosberg/CompressGV/master/LICENSE">License</a></li>
 					</ul>
 				</div>
@@ -36,7 +36,7 @@
 						<li><a href="#intro"><i class="icon-home"></i> Introduction</a></li>
 						<li class="divider"></li>
 						<li><a href="#use"><i class="icon-wrench"></i> Use CompressGV</a></li>
-						<li><a href="#" id="demo"><i class="icon-play-circle"></i>Run Demo</a></li>
+						<li><a href="#" id="demo"><i class="icon-play-circle"></i> Run Demo</a></li>
 						<li class="divider"></li>
 						<li><a href="#download"><i class="icon-download-alt"></i> Download Source</a></li>
 						<li><a href="#help"><i class="icon-info-sign"></i> Help</a></li>
@@ -53,7 +53,15 @@
 		<p>
 			...is browser-based and desktop software for the classification of novel non-synonymous single-nucleotide polymorphisms (nsSNPs).
 		</p>
-		<p>This website will be extended to include more information after manuscript publication. Please use the example data by clicking the relevant links to copy into the input boxes.</p>
+		<h3>Demo</h3>
+		<ol>
+			<li>Use the example data by clicking the relevant links to copy into the respective input boxes; OR</li>
+			<li>Click "Run Demo" in the main menu to automatically copy all example data and run the classification.</li>
+		</ol>
+		</p>			
+		<h3>Citation</h3>
+		<p class="well">Schlosberg, A.; Lam, B.Y.H.; Yeo, G.S.H.; Clifton-Bligh, R.J.; DEFLATE compression algorithm corrects for overestimation of phylogenetic diversity by Grantham approach to single-nucleotide polymorphism classification. <em>Int. J. Mol. Sci.</em> Forthcoming 2014.</p>
+		<p>Publication pending; accepted 4<sup>th</sup> May, 2014 for publication in the special issue <a href="http://www.mdpi.com/journal/ijms/special_issues/disease-diagnostics">Human Single Nucleotide Polymorphisms and Disease Diagnostics</a>.</p>
 	</div>
 </div>
 
@@ -71,6 +79,7 @@
 			<li><a href="#novel" data-toggle="tab"><i class="icon-question-sign"></i> Novel nsSNPs</a></li>
 			<li><a id="runLink" href="#run" data-toggle="tab"><i class="icon-play"></i> Run CompressGV</a></li>
 			<li><a id="resultLink" href="#results" data-toggle="tab"><i class="icon-list-alt"></i> Results</a></li>
+			<li><a id="probLink" href="#probability" data-toggle="tab"><i class="icon-info-sign"></i> Interpret Results</a></li>
 		</ul>
 		<div class="tab-content">
 			<div class="tab-pane active" id="msa">
@@ -356,6 +365,39 @@ I36V
 </table>
 
 			</div>
+			<div class="tab-pane" id="probability">
+				<h3>Beta - caveat emptor</h3>
+				<p>
+					<strong>NB</strong> - the probability distributions used below are still in their preliminary stages and deviate slightly from optimal modelling of deleterious and neutral classification. For more information, see the supplement to the manuscript.
+				</p>
+				<p>The Normalised GM is provided in the final column of the results table and can be used to determine the post-test probability of deleterious classification. Provide a pre-test probability below and all novel nsSNPs will be updated (as described in the manuscript; Equation 8). A default probability of 0.5 (50%) is assumed.</p>
+				<p>
+					<label for="preTest">Pre-test probability of deleterious classification:</label>
+					<input id="preTest" value="0.5" />
+				<p>
+				<div class="pull-left">
+				
+<table id="probabilityTable" class="table table-bordered table-hover">
+	<thead>
+		<tr>
+			<th>Variant</th>
+			<th>Normalised GM</th>
+			<th>Post-test Probability</th>
+		</tr>
+	</thead>
+	<tbody>
+
+	</tbody>
+</table>
+
+				</div>
+				<div style="overflow: hidden; padding: 0px 10px;">
+					<div id="plot" style="width: 500px; height: 500px;">
+					
+					</div>
+				</div>
+				<div class="clearfix"></div>
+			</div>
 		</div>
 	</div>
 	
@@ -429,9 +471,12 @@ I36V
 			</div>
 		</div>
 
-		<script src="http://code.jquery.com/jquery.js"></script>
+		<script src="//code.jquery.com/jquery.js"></script>
 		<script src="jquery.ba-hashchange.min.js"></script>
 		<script src="CompressGV.js"></script>
 		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<script src="//code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+		<script src="./animation/js/flot/jquery.flot.js"></script>
+		<link href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" rel="stylesheet" media="screen">
 	</body>
 </html>

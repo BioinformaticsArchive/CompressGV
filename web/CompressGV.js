@@ -59,7 +59,7 @@ $(function(){
 	toHash();
 	$(window).hashchange(toHash);
 
-	$('textarea')
+	$('textarea, input')
 		.addClass('input-block-level')
 		.attr('rows', 10)
 		.attr('wrap', 'off')
@@ -84,6 +84,67 @@ $(function(){
 								
 			$(this).prev().append(copy);
 		});
+	
+	var pdfSuffix = ['P', 'N'];
+	var pdf = [];
+	
+	doPostTest = function(){
+	
+		if(pdf.length<2){
+			for(var s in pdfSuffix){
+				$.ajax({
+					url : './pdf'+pdfSuffix[s]+'.json',
+					async : false,
+					success : function(data){
+						pdf[s] = [];
+						for(var d in data){
+							pdf[s].push([-10 + d/100, data[d]]); // 2000 data points from -10 to 9.99 inclusive
+						}
+					}
+				});
+			}
+		}
+		
+		var preTest = Math.max(0, Math.min(1, parseFloat($('#preTest').val())));
+		var post = [];
+		for(var i in pdf[0]){
+			var inD = preTest * pdf[0][i][1];
+			var inN = (1-preTest) * pdf[1][i][1];
+			post[i] = [pdf[0][i][0], inD / (inD + inN)];
+		}
+	
+		$.plot("#plot",
+		[
+			{ label: "Post-test Probability", color: 'black', data: post },
+			{ label: "PDF (Deleterious)", color: 'red', data: pdf[0] },
+			{ label: "PDF (Neutral)", color: 'blue', data: pdf[1] }
+		],
+		{
+			xaxis : {
+				min : -10,
+				max : 10
+			},
+			yaxis : {
+				min : 0,
+				max : 1
+			}
+		});
+		
+		$('#probabilityTable tbody tr').each(function(){
+			var GM = parseFloat($(this).find('td').eq(1).html());
+			var idx = Math.floor((GM + 10) / 0.01);
+			$(this).find('td').eq(2).html(Math.round(post[idx][1]*10000)/100+'%');
+		});
+	}
+
+	doPostTest();
+	$('#preTest').spinner({
+		min : 0,
+		max : 1,
+		step : 0.01,
+		change : doPostTest,
+		spin : doPostTest
+	});
 		
 	$('#runLink').click(function(){
 		$('#run>div.alert').remove();
@@ -169,6 +230,8 @@ $(function(){
 			}
 			
 			$('#results>*').not('#resultsTemplate').remove();
+			var probTBody = $('#probabilityTable tbody');
+			probTBody.find('>*').remove();
 			
 			var limits = [[4,novel-4],[novel,lines.length-5]];
 			var ids = ['cross','novel'];
@@ -185,10 +248,21 @@ $(function(){
 				var tbody = table.find('>tbody');
 				for(var i=limits[lim][0]; i<limits[lim][1]; i++){
 					var tr = $('<tr>');
-					var vData = $.map(lines[i].split(/\s+/), function(v){
-						return tr.append($('<td>').html(v));
+					if(lim==1){
+						var probTr = $('<tr>');
+					}
+					var vData = $.map(lines[i].split(/\s+/), function(v, i){
+						var td = $('<td>').html(v);
+						if(lim==1 && (i==0 || i==5)){
+							probTr.append(td.clone());
+						}
+						return tr.append(td);
 					});
 					tbody.append(tr);
+					if(lim==1){
+						probTr.append($('<td>'));
+						probTBody.append(probTr);
+					}
 				}
 
 				if(lim==0){
@@ -230,6 +304,7 @@ $(function(){
 			}
 				
 			$('#results>pre').html(lines[4]+'\n'+lines[novel]);
+			doPostTest();
 			$('#resultLink').tab('show');
 		}, 'json');
 
