@@ -319,4 +319,20 @@ $(function(){
 		return false;
 	});
 	
+	$('#compatible a').click(function(){
+		var rel = $(this).attr('rel');
+		var tq = 'Thank you for your help, your response has been logged.';
+		$.get($(this).attr('href'), function(){
+			if(rel=='1'){
+				alert(tq);
+			}
+			else {
+				if(confirm(tq+' Would you like to lodge an issue and provide us with more information?')){
+					location.href = 'https://github.com/aschlosberg/CompressGV/issues/new';
+				}
+			}
+		});
+		return false;
+	});
+	
 });
