@@ -203,7 +203,8 @@ $(function(){
 	$('#jqVer').html($.fn.jquery);
 	$('#jquVer').html($.ui.version);
 	$('#flotVer').html($.plot.version);
-	
+
+	setTimeout(function(){ // jQuery document.ready fires before Processing.js - millisecond delay to correct
 	try {
 		var p = Processing.getInstanceById('grantham');
 		if(!p.isSetupOK()){
@@ -242,6 +243,7 @@ $(function(){
 	});
 	
 	doPlot();
+	}, 1);
 });
 
 function doPlot(){
