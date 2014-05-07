@@ -320,6 +320,7 @@ $(function(){
 	});
 	
 	$('#compatible a').click(function(){
+		var me = $(this).addClass('disabled');
 		var rel = $(this).attr('rel');
 		var tq = 'Thank you for your help, your response has been logged.';
 		$.get($(this).attr('href'), function(){
@@ -331,6 +332,7 @@ $(function(){
 					location.href = 'https://github.com/aschlosberg/CompressGV/issues/new';
 				}
 			}
+			me.removeClass('disabled');
 		});
 		return false;
 	});
