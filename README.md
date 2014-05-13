@@ -1,6 +1,12 @@
 #CompressGV
 
-[Abstract](#abstract) | [Browser & HTTP Interface](#browser--http-interface) | [Requirements](#requirements) | [Installation](#installation)
+[Citation](#citation) | [Abstract](#abstract) | [Browser & HTTP Interface](#browser--http-interface) | [Requirements](#requirements) | [Installation](#installation)
+
+##Citation
+
+Schlosberg A, Lam BYH, Yeo GSH, Clifton-Bligh RJ. DEFLATE Compression Algorithm Corrects for Overestimation of Phylogenetic Diversity by Grantham Approach to Single-Nucleotide Polymorphism Classification. *International Journal of Molecular Sciences*. 2014; 15(5):8491-8508.
+
+[Read online](http://www.mdpi.com/1422-0067/15/5/8491)
 
 ##Abstract
 
@@ -28,7 +34,7 @@ A sample Linux makefile is included.
 
 ---------------------------------------------------------------------------------------
 
-Copyright 2013 Arran Schlosberg.
+Copyright 2014 Arran Schlosberg.
 
 This file is part of https://github.com/aschlosberg/CompressGV (CompressGV)
 
