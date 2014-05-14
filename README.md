@@ -6,7 +6,7 @@
 
 Schlosberg A, Lam BYH, Yeo GSH, Clifton-Bligh RJ. DEFLATE Compression Algorithm Corrects for Overestimation of Phylogenetic Diversity by Grantham Approach to Single-Nucleotide Polymorphism Classification. *International Journal of Molecular Sciences*. 2014; 15(5):8491-8508.
 
-[Read online](http://www.mdpi.com/1422-0067/15/5/8491)
+[Read online - Open Access](http://dx.doi.org/10.3390/ijms15058491)
 
 ##Abstract
 
